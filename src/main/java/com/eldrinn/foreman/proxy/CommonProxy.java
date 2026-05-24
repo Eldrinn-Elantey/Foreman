@@ -1,0 +1,24 @@
+package com.eldrinn.foreman.proxy;
+
+import com.eldrinn.foreman.command.ForemanCommand;
+import com.eldrinn.foreman.event.PlayerLoginHandler;
+import com.eldrinn.foreman.network.ForemanNetwork;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.common.MinecraftForge;
+
+public class CommonProxy {
+
+    public void preInit(FMLPreInitializationEvent event) {
+        ForemanNetwork.init();
+    }
+
+    public void init(FMLInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(new PlayerLoginHandler());
+    }
+
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new ForemanCommand());
+    }
+}
