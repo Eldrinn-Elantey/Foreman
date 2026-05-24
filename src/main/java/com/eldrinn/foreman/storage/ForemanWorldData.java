@@ -1,23 +1,28 @@
 package com.eldrinn.foreman.storage;
 
-import com.eldrinn.foreman.data.Task;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.util.Constants;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import com.eldrinn.foreman.data.Task;
 
 public class ForemanWorldData extends WorldSavedData {
 
     private static final String DATA_NAME = "ForemanTasks";
 
-    private static final org.apache.logging.log4j.Logger LOG =
-        org.apache.logging.log4j.LogManager.getLogger("foreman");
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager.getLogger("foreman");
 
     // Insertion-ordered map for deterministic list output.
     private final Map<UUID, Task> tasks = new LinkedHashMap<>();
