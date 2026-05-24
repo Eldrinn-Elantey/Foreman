@@ -30,9 +30,9 @@ public class Comment {
     }
 
     public void writeToBuf(PacketBuffer buf) throws IOException {
-        buf.writeString(author);
+        buf.writeStringToBuffer(author);
         buf.writeLong(timestamp);
-        buf.writeString(text);
+        buf.writeStringToBuffer(text);
     }
 
     public static Comment readFromBuf(PacketBuffer buf) throws IOException {

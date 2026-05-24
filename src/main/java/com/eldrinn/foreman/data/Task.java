@@ -99,8 +99,8 @@ public class Task {
     public void writeToBuf(PacketBuffer buf) throws IOException {
         buf.writeLong(id.getMostSignificantBits());
         buf.writeLong(id.getLeastSignificantBits());
-        buf.writeString(title);
-        buf.writeString(description);
+        buf.writeStringToBuffer(title);
+        buf.writeStringToBuffer(description);
         buf.writeInt(status.ordinal());
 
         buf.writeInt(assignees.size());

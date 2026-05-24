@@ -43,7 +43,7 @@ public class TaskLocation {
         buf.writeInt(x);
         buf.writeInt(y);
         buf.writeInt(z);
-        buf.writeString(label);
+        buf.writeStringToBuffer(label);
     }
 
     public static TaskLocation readFromBuf(PacketBuffer buf) throws IOException {

@@ -37,7 +37,7 @@ public class Subtask {
     public void writeToBuf(PacketBuffer buf) throws IOException {
         buf.writeLong(id.getMostSignificantBits());
         buf.writeLong(id.getLeastSignificantBits());
-        buf.writeString(title);
+        buf.writeStringToBuffer(title);
         buf.writeBoolean(checked);
     }
 
