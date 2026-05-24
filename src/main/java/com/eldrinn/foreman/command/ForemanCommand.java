@@ -59,7 +59,8 @@ public class ForemanCommand extends CommandBase {
                     sender.addChatMessage(new ChatComponentText("You need to be OP to use this command."));
                     return;
                 }
-                // Syncs current in-memory state to all connected clients.
+                // Re-sends current in-memory state to all connected clients.
+                // Note: does NOT reload from disk — use server restart to pick up manual NBT edits.
                 ForemanNetwork.CHANNEL.sendToAll(new SyncAllTasksPacket(data.getAllTasks()));
                 sender.addChatMessage(new ChatComponentText(
                     "Synced " + data.getAllTasks().size() + " tasks to all players."
