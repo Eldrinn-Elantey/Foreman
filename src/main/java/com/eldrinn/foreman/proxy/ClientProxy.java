@@ -36,6 +36,10 @@ public class ClientProxy extends CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(this);
+        if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {
+            com.gtnewhorizons.navigator.api.NavigatorApi
+                .registerLayerManager(com.eldrinn.foreman.navigator.TaskLayerManager.INSTANCE);
+        }
     }
 
     @Override

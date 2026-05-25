@@ -27,6 +27,9 @@ public class ForemanClientCache {
         for (Task t : incoming) {
             tasks.put(t.id, t);
         }
+        if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {
+            com.eldrinn.foreman.navigator.TaskLayerManager.INSTANCE.refreshFromCache(tasks.values());
+        }
     }
 
     public static Collection<Task> getAll() {

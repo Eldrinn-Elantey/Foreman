@@ -6,9 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
 import com.cleanroommc.modularui.utils.Alignment;
+import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
+import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.data.Subtask;
@@ -64,7 +66,8 @@ public class TaskDetailWidget extends Flow {
         Flow header = Flow.row()
             .size(W, 24);
         PlainTextField titleField = new PlainTextField();
-        titleField.size(W - 28, 22);
+        titleField.size(isNew ? W : W - 28, 22);
+        titleField.setTextColor(0xFFFFFF);
         titleField.value(new StringValue.Dynamic(() -> task.title, val -> {
             task.title = val;
             sendUpdate();
@@ -74,6 +77,7 @@ public class TaskDetailWidget extends Flow {
             TextWidget deleteLabel = new TextWidget("D");
             deleteLabel.size(24, 22);
             deleteLabel.alignment(Alignment.Center);
+            deleteLabel.color(0xCC3333);
             header.child(
                 new ButtonWidget<>().size(24, 22)
                     .child(deleteLabel)
@@ -88,9 +92,12 @@ public class TaskDetailWidget extends Flow {
         child(header);
 
         // Description
-        child(new TextWidget("Description:"));
+        TextWidget descLabel = new TextWidget("Description:");
+        descLabel.size(W, 14);
+        child(descLabel);
         PlainTextField descField = new PlainTextField();
         descField.size(W, 22);
+        descField.setTextColor(0xFFFFFF);
         descField.value(new StringValue.Dynamic(() -> task.description, val -> {
             task.description = val;
             sendUpdate();
@@ -98,48 +105,70 @@ public class TaskDetailWidget extends Flow {
         child(descField);
 
         // Status buttons
-        child(new TextWidget("Status:"));
+        TextWidget statusLabel = new TextWidget("Status:");
+        statusLabel.size(W, 14);
+        child(statusLabel);
         Flow statusRow = Flow.row()
             .size(W, 22);
         for (TaskStatus s : TaskStatus.values()) {
             TaskStatus status = s;
-            TextWidget statusLabel = new TextWidget(s.displayName());
-            statusLabel.size(120, 20);
-            statusLabel.alignment(Alignment.Center);
+            TextWidget normalLabel = new TextWidget(s.displayName());
+            normalLabel.size(120, 20);
+            normalLabel.alignment(Alignment.Center);
+            normalLabel.color(0xFFFFFF);
+            TextWidget activeLabel = new TextWidget(s.displayName());
+            activeLabel.size(120, 20);
+            activeLabel.alignment(Alignment.Center);
+            activeLabel.color(0xFFFFFF);
             statusRow.child(
-                new ButtonWidget<>().size(120, 20)
-                    .child(statusLabel)
-                    .onMousePressed(btn -> {
-                        if (btn != 0) return false;
-                        task.status = status;
-                        sendUpdate();
-                        ForemanGui.open(data);
-                        return true;
-                    }));
+                new ToggleButton().size(120, 20)
+                    .value(new BoolValue.Dynamic(() -> task.status == status, selected -> {
+                        if (selected) {
+                            task.status = status;
+                            sendUpdate();
+                            ForemanGui.open(data);
+                        }
+                    }))
+                    .child(false, normalLabel)
+                    .child(true, activeLabel));
         }
         child(statusRow);
 
         // Assignees
-        child(new TextWidget("Assignees:"));
+        TextWidget assigneesLabel = new TextWidget("Assignees:");
+        assigneesLabel.size(W, 14);
+        child(assigneesLabel);
         child(new AssigneePickerWidget(task, data));
 
         // Location
-        child(new TextWidget("Location:"));
+        TextWidget locationLabel = new TextWidget("Location:");
+        locationLabel.size(W, 14);
+        child(locationLabel);
         child(buildLocationRow());
 
         // Subtasks
-        child(new TextWidget("Subtasks:"));
+        TextWidget subtasksLabel = new TextWidget("Subtasks:");
+        subtasksLabel.size(W, 14);
+        child(subtasksLabel);
         child(buildSubtaskList());
     }
 
     private Flow buildLocationRow() {
         final int W = ForemanGui.RIGHT_WIDTH - 2 * ForemanGui.PADDING;
+        // layout: [x: 14][field 106][gap 6][y: 14][field 106][gap 6][z: 14][field 106][gap 6][Pos 90] = 468
+        final int LABEL_W = 14;
+        final int FIELD_W = 106;
+        final int GAP = 6;
+        final int POS_W = W - 3 * (LABEL_W + FIELD_W + GAP);
         Flow row = Flow.row()
             .size(W, 22);
 
-        row.child(new TextWidget("x:"));
+        TextWidget xLabel = new TextWidget("x:");
+        xLabel.size(LABEL_W, 20);
+        row.child(xLabel);
         PlainTextField xField = new PlainTextField();
-        xField.size(60, 20);
+        xField.size(FIELD_W, 20);
+        xField.setTextColor(0xFFFFFF);
         xField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.x : 0), val -> {
             ensureLocation();
             try {
@@ -149,9 +178,13 @@ public class TaskDetailWidget extends Flow {
         }));
         row.child(xField);
 
-        row.child(new TextWidget("y:"));
+        TextWidget yLabel = new TextWidget("y:");
+        yLabel.size(LABEL_W, 20);
+        yLabel.margin(GAP, 0, 0, 0);
+        row.child(yLabel);
         PlainTextField yField = new PlainTextField();
-        yField.size(60, 20);
+        yField.size(FIELD_W, 20);
+        yField.setTextColor(0xFFFFFF);
         yField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.y : 0), val -> {
             ensureLocation();
             try {
@@ -161,9 +194,13 @@ public class TaskDetailWidget extends Flow {
         }));
         row.child(yField);
 
-        row.child(new TextWidget("z:"));
+        TextWidget zLabel = new TextWidget("z:");
+        zLabel.size(LABEL_W, 20);
+        zLabel.margin(GAP, 0, 0, 0);
+        row.child(zLabel);
         PlainTextField zField = new PlainTextField();
-        zField.size(60, 20);
+        zField.size(FIELD_W, 20);
+        zField.setTextColor(0xFFFFFF);
         zField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.z : 0), val -> {
             ensureLocation();
             try {
@@ -174,10 +211,12 @@ public class TaskDetailWidget extends Flow {
         row.child(zField);
 
         TextWidget posLabel = new TextWidget("Pos");
-        posLabel.size(36, 20);
+        posLabel.size(POS_W, 20);
         posLabel.alignment(Alignment.Center);
+        posLabel.color(0xFFFFFF);
         row.child(
-            new ButtonWidget<>().size(36, 20)
+            new ButtonWidget<>().size(POS_W, 20)
+                .margin(GAP, 0, 0, 0)
                 .child(posLabel)
                 .onMousePressed(btn -> {
                     if (btn != 0) return false;
@@ -206,11 +245,14 @@ public class TaskDetailWidget extends Flow {
             TextWidget checkLabel = new TextWidget(s.checked ? "x" : " ");
             checkLabel.size(18, 16);
             checkLabel.alignment(Alignment.Center);
+            checkLabel.color(0x333333);
             TextWidget subtaskTitle = new TextWidget(s.title);
             subtaskTitle.size(W - 36, 16);
+            subtaskTitle.padding(4, 0, 0, 0);
             TextWidget deleteLabel = new TextWidget("D");
             deleteLabel.size(18, 16);
             deleteLabel.alignment(Alignment.Center);
+            deleteLabel.color(0xCC3333);
             col.child(
                 Flow.row()
                     .size(W, 18)
@@ -241,11 +283,13 @@ public class TaskDetailWidget extends Flow {
         String[] newTitle = { "" };
         PlainTextField addField = new PlainTextField();
         addField.size(W - 28, 18);
+        addField.setTextColor(0xFFFFFF);
         addField.autoUpdateOnChange(true);
         addField.value(new StringValue.Dynamic(() -> newTitle[0], val -> newTitle[0] = val));
         TextWidget addLabel = new TextWidget("+");
         addLabel.size(24, 18);
         addLabel.alignment(Alignment.Center);
+        addLabel.color(0xFFFFFF);
         col.child(
             Flow.row()
                 .size(W, 20)
