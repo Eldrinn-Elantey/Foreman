@@ -1,0 +1,25 @@
+{
+  "color": "0xFF1E1E2E",
+  "textColor": "0xFFE0E0EE",
+  "textShadow": false,
+  "panel": {
+    "color": "0xFF1E1E2E"
+  },
+  "button": {
+    "color": "0xFF2A2A3C",
+    "textColor": "0xFFE0E0EE",
+    "textShadow": false
+  },
+  "toggleButton": {
+    "color": "0xFF2A2A3C",
+    "textColor": "0xFFE0E0EE",
+    "textShadow": false,
+    "selectedColor": "0xFF4A6FA5",
+    "selectedTextColor": "0xFFFFFFFF"
+  },
+  "textField": {
+    "color": "0xFF14141F",
+    "textColor": "0xFFE0E0EE",
+    "textShadow": false
+  }
+}

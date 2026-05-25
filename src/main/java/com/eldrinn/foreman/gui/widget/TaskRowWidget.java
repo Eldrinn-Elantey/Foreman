@@ -27,10 +27,12 @@ public class TaskRowWidget extends ToggleButton {
         TextWidget normalLabel = new TextWidget(buildLabel(task));
         normalLabel.size(ROW_WIDTH, 20);
         normalLabel.alignment(Alignment.CenterLeft);
+        normalLabel.padding(4, 0, 0, 0);
 
         TextWidget activeLabel = new TextWidget(buildLabel(task));
         activeLabel.size(ROW_WIDTH, 20);
         activeLabel.alignment(Alignment.CenterLeft);
+        activeLabel.padding(4, 0, 0, 0);
         activeLabel.color(0xFFFFFF);
 
         value(new BoolValue.Dynamic(() -> task.id.equals(data.selectedTaskId), selected -> {
@@ -53,11 +55,11 @@ public class TaskRowWidget extends ToggleButton {
     private static String statusIcon(TaskStatus status) {
         switch (status) {
             case OPEN:
-                return "*";
+                return "○"; // ○
             case IN_PROGRESS:
                 return "~";
             case DONE:
-                return "+";
+                return "✔"; // ✔
             default:
                 return "?";
         }

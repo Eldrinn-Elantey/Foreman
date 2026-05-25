@@ -27,6 +27,20 @@ public class ForemanGui {
     public static final int RIGHT_WIDTH = 480;
     public static final int PADDING = 6;
 
+    public static final String THEME_DARK = "foreman_dark";
+    public static final String THEME_LIGHT = "foreman_light";
+
+    /** Currently active theme id. Persists for the session. */
+    private static String currentTheme = THEME_DARK;
+
+    public static String getTheme() {
+        return currentTheme;
+    }
+
+    public static void toggleTheme() {
+        currentTheme = THEME_DARK.equals(currentTheme) ? THEME_LIGHT : THEME_DARK;
+    }
+
     private static volatile ForemanGuiData pendingOpen = null;
     /** Last data used to open the GUI — used to refresh on server sync. */
     private static ForemanGuiData activeData = null;
@@ -70,6 +84,7 @@ public class ForemanGui {
         try {
             LOG.info("[ForemanGui] tick() building panel");
             ModularPanel panel = ModularPanel.defaultPanel("foreman_main", WIDTH, HEIGHT);
+            panel.themeOverride(currentTheme);
             LOG.info("[ForemanGui] tick() building widgets");
             panel.child(
                 Flow.row()

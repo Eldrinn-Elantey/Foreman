@@ -40,7 +40,9 @@ public class TaskListWidget extends Flow {
                 .child(tabButton("Done", TaskStatus.DONE, data, TAB_W)));
 
         // Search placeholder (non-functional, reserved for Phase 4)
-        child(new TextWidget("Search..."));
+        TextWidget searchPlaceholder = new TextWidget("Search...");
+        searchPlaceholder.size(W, 18);
+        child(searchPlaceholder);
 
         // Task list
         ListWidget<TaskRowWidget, ?> list = new ListWidget<>();
@@ -53,25 +55,48 @@ public class TaskListWidget extends Flow {
         }
         child(list);
 
-        // New Task button
+        // Bottom bar: New Task + theme toggle
+        final int THEME_BTN_W = 28;
+        final int NEW_TASK_W = W - THEME_BTN_W - 4;
+
         TextWidget newTaskLabel = new TextWidget("+ New Task");
-        newTaskLabel.size(W, 24);
+        newTaskLabel.size(NEW_TASK_W, 24);
         newTaskLabel.alignment(Alignment.Center);
+        newTaskLabel.color(0xFFFFFF);
+
+        TextWidget themeLabel = new TextWidget("☀");
+        themeLabel.size(THEME_BTN_W, 24);
+        themeLabel.alignment(Alignment.Center);
+        themeLabel.color(0xFFFFFF);
+
         child(
-            new ButtonWidget<>().size(W, 24)
-                .child(newTaskLabel)
-                .onMousePressed(btn -> {
-                    if (btn != 0) return false;
-                    data.enterCreateMode();
-                    ForemanGui.open(data);
-                    return true;
-                }));
+            Flow.row()
+                .size(W, 24)
+                .child(
+                    new ButtonWidget<>().size(NEW_TASK_W, 24)
+                        .child(newTaskLabel)
+                        .onMousePressed(btn -> {
+                            if (btn != 0) return false;
+                            data.enterCreateMode();
+                            ForemanGui.open(data);
+                            return true;
+                        }))
+                .child(
+                    new ButtonWidget<>().size(THEME_BTN_W, 24)
+                        .child(themeLabel)
+                        .onMousePressed(btn -> {
+                            if (btn != 0) return false;
+                            ForemanGui.toggleTheme();
+                            ForemanGui.open(data);
+                            return true;
+                        })));
     }
 
     private static ToggleButton tabButton(String label, TaskStatus status, ForemanGuiData data, int width) {
         TextWidget normalLabel = new TextWidget(label);
         normalLabel.size(width, 22);
         normalLabel.alignment(Alignment.Center);
+        normalLabel.color(0xFFFFFF);
 
         TextWidget activeLabel = new TextWidget(label);
         activeLabel.size(width, 22);
