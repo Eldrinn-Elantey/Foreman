@@ -41,6 +41,8 @@ public class TaskDetailWidget extends Flow {
     private final ForemanGuiData data;
     private final Task task;
     private final boolean isNew;
+    // Tracks whether CreateTaskPacket has been sent so subsequent edits use UpdateTaskPacket
+    private boolean created = false;
 
     public TaskDetailWidget(ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
@@ -392,8 +394,13 @@ public class TaskDetailWidget extends Flow {
     private void sendUpdate() {
         if (isNew) {
             if (!task.title.isEmpty()) {
-                ForemanNetwork.CHANNEL.sendToServer(new CreateTaskPacket(task));
-                data.selectTask(task.id);
+                if (!created) {
+                    ForemanNetwork.CHANNEL.sendToServer(new CreateTaskPacket(task));
+                    data.selectTask(task.id);
+                    created = true;
+                } else {
+                    ForemanNetwork.CHANNEL.sendToServer(new UpdateTaskPacket(task));
+                }
             }
         } else {
             ForemanNetwork.CHANNEL.sendToServer(new UpdateTaskPacket(task));
