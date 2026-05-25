@@ -21,7 +21,7 @@ public class SyncTeamMembersPacket implements IPacket {
     public SyncTeamMembersPacket() {}
 
     public SyncTeamMembersPacket(List<PlayerEntry> members) {
-        this.members = members;
+        this.members = new ArrayList<>(members);
     }
 
     @Override
