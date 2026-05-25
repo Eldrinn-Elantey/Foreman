@@ -22,7 +22,7 @@ public class ForemanCommand extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/foreman <list|reload>";
+        return "/foreman <list|reload|gui>";
     }
 
     @Override
@@ -67,6 +67,15 @@ public class ForemanCommand extends CommandBase {
                     new ChatComponentText(
                         "Synced " + data.getAllTasks()
                             .size() + " tasks to all players."));
+                break;
+            }
+            case "gui": {
+                if (sender instanceof EntityPlayerMP) {
+                    cpw.mods.fml.client.FMLClientHandler.instance().getClient()
+                        .addScheduledTask(com.eldrinn.foreman.gui.ForemanGui::open);
+                } else {
+                    sender.addChatMessage(new ChatComponentText("GUI is client-only."));
+                }
                 break;
             }
             default:
