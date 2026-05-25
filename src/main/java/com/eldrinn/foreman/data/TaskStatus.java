@@ -6,6 +6,15 @@ public enum TaskStatus {
     IN_PROGRESS,
     DONE;
 
+    public String displayName() {
+        switch (this) {
+            case OPEN: return "To do";
+            case IN_PROGRESS: return "Doing";
+            case DONE: return "Done";
+            default: return name();
+        }
+    }
+
     public static TaskStatus fromNBT(String name) {
         try {
             return TaskStatus.valueOf(name);
