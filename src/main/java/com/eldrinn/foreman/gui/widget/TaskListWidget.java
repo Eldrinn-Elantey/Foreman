@@ -85,7 +85,8 @@ public class TaskListWidget extends Flow {
         child(searchRow);
 
         // Task list filtered by active tab and search query
-        ListWidget<TaskRowWidget, ?> list = new ListWidget<>();
+        @SuppressWarnings("rawtypes")
+        ListWidget list = new ListWidget();
         list.size(W, H - 24 - 22 - 28);
         Collection<Task> all = ForemanClientCache.getAll();
         String query = data.searchQuery.toLowerCase();
