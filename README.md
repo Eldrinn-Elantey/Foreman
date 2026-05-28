@@ -4,7 +4,7 @@ A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman let
 
 |Task List|Task Detail|
 |-|-|
-|<img width="778" height="1179" alt="java_SutgbKVhtc" src="https://github.com/user-attachments/assets/a0fb1831-cac1-43ac-a536-c4036a4b6a1e" />|<img width="774" height="1175" alt="java_4JCPwo1bFb" src="https://github.com/user-attachments/assets/bb663cb8-08f2-4f2d-b857-89574e109636" />| 
+|<img width="767" height="1170" alt="themes_comparison" src="https://github.com/user-attachments/assets/fdc49e1d-5aeb-4c1e-bf59-7bc2769ece62" />|<img width="771" height="1175" alt="themes_comparison_detail" src="https://github.com/user-attachments/assets/6afe1596-4bbf-4ae3-b9ab-e353e38e2732" />| 
 
 ## Features
 
