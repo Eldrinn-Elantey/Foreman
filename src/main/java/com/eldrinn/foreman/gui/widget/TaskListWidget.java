@@ -125,7 +125,7 @@ public class TaskListWidget extends Flow {
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             data.enterCreateMode();
-                            ForemanGui.open(data);
+                            data.pageController.setPage(1);
                             return true;
                         }))
                 .child(
