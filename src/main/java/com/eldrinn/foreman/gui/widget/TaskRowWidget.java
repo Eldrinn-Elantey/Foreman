@@ -5,9 +5,17 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiPlayerInfo;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.item.ItemStack;
 
+import org.jetbrains.annotations.Nullable;
+
+import com.cleanroommc.modularui.api.ITheme;
+import com.cleanroommc.modularui.drawable.GuiDraw;
+import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
+import com.cleanroommc.modularui.theme.WidgetThemeEntry;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
+import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
@@ -29,11 +37,14 @@ public class TaskRowWidget extends Flow {
     public static final int SCROLLBAR_W = 4;
     private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
     private static final int STATUS_BTN_W = 20;
-    private static final int LABEL_W = ROW_WIDTH - STATUS_BTN_W - 2;
+    private static final int ICON_W = 18;
+    private static final int LABEL_W = ROW_WIDTH - ICON_W - STATUS_BTN_W - 2;
 
     public TaskRowWidget(Task task, ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.X);
         size(ROW_WIDTH, 20);
+
+        child(new TaskIconWidget(task.iconItem, task.status).size(ICON_W, 20));
 
         TextWidget normalLabel = new TextWidget(buildLabel(task));
         normalLabel.size(LABEL_W, 20);
@@ -91,7 +102,7 @@ public class TaskRowWidget extends Flow {
     }
 
     private static String buildLabel(Task task) {
-        return statusIcon(task.status) + " " + truncate(task.title, 28) + "  " + buildAssigneeText(task);
+        return truncate(task.title, 28) + "  " + buildAssigneeText(task);
     }
 
     private static String statusIcon(TaskStatus status) {
@@ -145,5 +156,56 @@ public class TaskRowWidget extends Flow {
 
     private static String truncate(String s, int max) {
         return s.length() <= max ? s : s.substring(0, max - 1) + "~";
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static class TaskIconWidget extends Widget<TaskIconWidget> {
+
+        private final @Nullable String iconItem;
+        private final TaskStatus status;
+
+        TaskIconWidget(@Nullable String iconItem, TaskStatus status) {
+            this.iconItem = iconItem;
+            this.status = status;
+        }
+
+        @Override
+        protected WidgetThemeEntry<?> getWidgetThemeInternal(ITheme theme) {
+            return theme.getPanelTheme();
+        }
+
+        @Override
+        public void draw(ModularGuiContext context, WidgetThemeEntry<?> widgetTheme) {
+            ItemStack stack = IconSlotWidget.parseIconItem(iconItem);
+            if (stack != null) {
+                int pad = 2;
+                GuiDraw.drawItem(
+                    stack,
+                    pad,
+                    pad,
+                    getArea().width - 2 * pad,
+                    getArea().height - 2 * pad,
+                    context.getCurrentDrawingZ());
+            } else {
+                // fallback to status symbol
+                String symbol = statusFallback(status);
+                int x = getArea().width / 2 - 3;
+                int y = getArea().height / 2 - 4;
+                Minecraft.getMinecraft().fontRenderer.drawString(symbol, x, y, 0xAAAAAA);
+            }
+        }
+
+        private static String statusFallback(TaskStatus status) {
+            switch (status) {
+                case OPEN:
+                    return "○";
+                case IN_PROGRESS:
+                    return "~";
+                case DONE:
+                    return "✔";
+                default:
+                    return "?";
+            }
+        }
     }
 }
