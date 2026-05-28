@@ -78,10 +78,14 @@ public class TaskRowWidget extends Flow {
 
     private static TaskStatus nextStatus(TaskStatus current) {
         switch (current) {
-            case OPEN: return TaskStatus.IN_PROGRESS;
-            case IN_PROGRESS: return TaskStatus.DONE;
-            case DONE: return TaskStatus.OPEN;
-            default: return TaskStatus.OPEN;
+            case OPEN:
+                return TaskStatus.IN_PROGRESS;
+            case IN_PROGRESS:
+                return TaskStatus.DONE;
+            case DONE:
+                return TaskStatus.OPEN;
+            default:
+                return TaskStatus.OPEN;
         }
     }
 
@@ -91,10 +95,14 @@ public class TaskRowWidget extends Flow {
 
     private static String statusIcon(TaskStatus status) {
         switch (status) {
-            case OPEN: return "○";
-            case IN_PROGRESS: return "~";
-            case DONE: return "✔";
-            default: return "?";
+            case OPEN:
+                return "○";
+            case IN_PROGRESS:
+                return "~";
+            case DONE:
+                return "✔";
+            default:
+                return "?";
         }
     }
 
@@ -112,7 +120,9 @@ public class TaskRowWidget extends Flow {
             }
             String name = resolveName(uuid);
             if (sb.length() > 0) sb.append(" ");
-            sb.append("[").append(name).append("]");
+            sb.append("[")
+                .append(name)
+                .append("]");
             shown++;
         }
         return sb.toString();
@@ -123,10 +133,13 @@ public class TaskRowWidget extends Flow {
         for (GuiPlayerInfo info : netHandler.playerInfoList) {
             net.minecraft.entity.player.EntityPlayer player = Minecraft.getMinecraft().theWorld
                 .getPlayerEntityByName(info.name);
-            if (player != null && uuid.equals(player.getGameProfile().getId()))
+            if (player != null && uuid.equals(
+                player.getGameProfile()
+                    .getId()))
                 return info.name;
         }
-        return uuid.toString().substring(0, 8);
+        return uuid.toString()
+            .substring(0, 8);
     }
 
     private static String truncate(String s, int max) {

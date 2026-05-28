@@ -168,9 +168,9 @@ public class TaskDetailWidget extends Flow {
         child(assigneesLabel);
         child(new AssigneePickerWidget(task, data));
 
-        // Location header: [label fills rest] [show-on-map label 56] [4px gap] [toggle 36]
+        // Location header: [label fills rest] [show-on-map label 72] [4px gap] [toggle 36]
         final int TOGGLE_W = 36;
-        final int MAP_LABEL_W = 56;
+        final int MAP_LABEL_W = 72;
         final int MAP_GAP = 4;
         Flow locationHeader = Flow.row()
             .size(W, ROW_H);
