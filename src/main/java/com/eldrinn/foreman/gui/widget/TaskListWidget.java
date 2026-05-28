@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
+import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
@@ -24,12 +25,13 @@ public class TaskListWidget extends Flow {
 
     public TaskListWidget(ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
-        size(ForemanGui.LEFT_WIDTH, ForemanGui.HEIGHT);
+        final int HEIGHT = ForemanGui.getHeight();
+        size(ForemanGui.LEFT_WIDTH, HEIGHT);
         padding(ForemanGui.PADDING);
 
         final int P = ForemanGui.PADDING;
         final int W = ForemanGui.LEFT_WIDTH - 2 * P;
-        final int H = ForemanGui.HEIGHT - 2 * P;
+        final int H = HEIGHT - 2 * P;
 
         // Tabs — each tab takes exactly 1/3 of the available width
         final int TAB_W = W / 3;
@@ -67,8 +69,8 @@ public class TaskListWidget extends Flow {
                     data.searchExpanded = !data.searchExpanded;
                     if (!data.searchExpanded) {
                         data.searchQuery = "";
-                        ForemanGui.open(data);
                     }
+                    ForemanGui.open(data);
                     return true;
                 }));
         if (data.searchExpanded) {
@@ -85,7 +87,9 @@ public class TaskListWidget extends Flow {
         child(searchRow);
 
         // Task list filtered by active tab and search query
-        ListWidget<TaskRowWidget, ?> list = new ListWidget<>();
+        @SuppressWarnings("rawtypes")
+        ListWidget list = new ListWidget();
+        list.scrollDirection(new VerticalScrollData(false, TaskRowWidget.SCROLLBAR_W));
         list.size(W, H - 24 - 22 - 28);
         Collection<Task> all = ForemanClientCache.getAll();
         String query = data.searchQuery.toLowerCase();

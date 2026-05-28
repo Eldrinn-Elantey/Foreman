@@ -2,6 +2,10 @@
 
 A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman lets teams create, assign, and track tasks directly in-game, with a GUI, map markers, and a full command interface.
 
+|Todo List|Todo Edit|
+|-|-|
+|<img width="778" height="1179" alt="java_SutgbKVhtc" src="https://github.com/user-attachments/assets/a0fb1831-cac1-43ac-a536-c4036a4b6a1e" />|<img width="774" height="1175" alt="java_4JCPwo1bFb" src="https://github.com/user-attachments/assets/bb663cb8-08f2-4f2d-b857-89574e109636" />| 
+
 ## Features
 
 - **Team-scoped tasks**: each GTNHLib team has its own isolated task list; all members stay in sync in real time
