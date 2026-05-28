@@ -26,9 +26,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class AssigneePickerWidget extends Flow {
 
-    public AssigneePickerWidget(Task task, ForemanGuiData data) {
+    public AssigneePickerWidget(Task task, ForemanGuiData data, int width) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
-        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = width;
         size(W, 20);
         coverChildrenHeight(20);
         for (PlayerEntry player : resolveAvailablePlayers()) {

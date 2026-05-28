@@ -11,7 +11,9 @@ import com.cleanroommc.modularui.drawable.ItemDrawable;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
+import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
+import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
@@ -33,22 +35,32 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class TaskDetailWidget extends Flow {
 
-    // Row height for rows containing 20px interactive elements
     private static final int ROW_H = 24;
-    // Height of interactive elements (buttons, fields)
     private static final int EL_H = 20;
+    private static final int SCROLLBAR_W = 4;
 
     private final ForemanGuiData data;
     private final Task task;
     private final boolean isNew;
     // Tracks whether CreateTaskPacket has been sent so subsequent edits use UpdateTaskPacket
     private boolean created = false;
+    @SuppressWarnings("rawtypes")
+    private final ListWidget formList;
 
+    @SuppressWarnings("rawtypes")
     public TaskDetailWidget(ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
         this.data = data;
-        size(ForemanGui.LEFT_WIDTH, ForemanGui.HEIGHT);
+        int height = ForemanGui.getHeight();
+        int innerH = height - 2 * ForemanGui.PADDING;
+        int innerW = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
+        size(ForemanGui.LEFT_WIDTH, height);
         padding(ForemanGui.PADDING);
+
+        this.formList = new ListWidget();
+        this.formList.scrollDirection(new VerticalScrollData(false, SCROLLBAR_W));
+        this.formList.size(innerW, innerH);
+        child(this.formList);
 
         if (data.createMode) {
             this.task = new Task(UUID.randomUUID(), "", "", TaskStatus.OPEN);
@@ -61,23 +73,23 @@ public class TaskDetailWidget extends Flow {
             if (found != null) {
                 buildForm();
             } else {
-                child(new TextWidget(t("foreman.gui.not_found")));
+                formList.child(new TextWidget(t("foreman.gui.not_found")));
             }
         } else {
             this.task = null;
             this.isNew = false;
-            child(new TextWidget(t("foreman.gui.placeholder")));
+            formList.child(new TextWidget(t("foreman.gui.placeholder")));
         }
     }
 
     private void buildForm() {
-        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
+        // Reserve space for the vertical scrollbar so it doesn't overlap content
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
 
-        // Header: [back 20] [icon 20] [title fills rest] [delete 20]
-        // No margins — sizes sum exactly to W
+        // Header: [back 20] [gap 4] [icon 20] [title fills rest] [delete 20]
         final int BACK_BTN_W = EL_H; // 20px
-        final int titleW = isNew ? W - BACK_BTN_W - EL_H
-                                 : W - BACK_BTN_W - EL_H * 2;
+        final int HEADER_GAP = 4;
+        final int titleW = isNew ? W - BACK_BTN_W - HEADER_GAP - EL_H : W - BACK_BTN_W - HEADER_GAP - EL_H * 2;
         Flow header = Flow.row()
             .size(W, ROW_H);
 
@@ -85,7 +97,7 @@ public class TaskDetailWidget extends Flow {
         TextWidget backLabel = new TextWidget("←");
         backLabel.size(BACK_BTN_W, EL_H);
         backLabel.alignment(Alignment.Center);
-        backLabel.color(0xFFFFFF);
+        backLabel.color(0xAAAAAA);
         header.child(
             new ButtonWidget<>().size(BACK_BTN_W, EL_H)
                 .child(backLabel)
@@ -95,6 +107,10 @@ public class TaskDetailWidget extends Flow {
                     data.pageController.setPage(0);
                     return true;
                 }));
+
+        TextWidget headerGap = new TextWidget("");
+        headerGap.size(HEADER_GAP, EL_H);
+        header.child(headerGap);
 
         // Icon button — second child
         ItemStack iconStack = parseIconItem(task.iconItem);
@@ -136,12 +152,12 @@ public class TaskDetailWidget extends Flow {
                         return true;
                     }));
         }
-        child(header);
+        formList.child(header);
 
         // Description
         TextWidget descLabel = new TextWidget(t("foreman.gui.detail.description"));
         descLabel.size(W, 14);
-        child(descLabel);
+        formList.child(descLabel);
         PlainTextField descField = new PlainTextField();
         descField.size(W, EL_H);
         descField.setTextColor(0xFFFFFF);
@@ -149,26 +165,30 @@ public class TaskDetailWidget extends Flow {
             task.description = val;
             sendUpdate();
         }));
-        child(descField);
+        formList.child(descField);
 
         // Status buttons
         TextWidget statusLabel = new TextWidget(t("foreman.gui.detail.status"));
         statusLabel.size(W, 14);
-        child(statusLabel);
+        formList.child(statusLabel);
         Flow statusRow = Flow.row()
             .size(W, ROW_H);
-        for (TaskStatus s : TaskStatus.values()) {
-            TaskStatus status = s;
-            TextWidget normalLabel = new TextWidget(s.displayName());
-            normalLabel.size(120, EL_H);
+        TaskStatus[] statuses = TaskStatus.values();
+        final int STATUS_BTN_W = W / statuses.length;
+        final int STATUS_LAST_W = W - STATUS_BTN_W * (statuses.length - 1);
+        for (int i = 0; i < statuses.length; i++) {
+            TaskStatus status = statuses[i];
+            int btnW = (i == statuses.length - 1) ? STATUS_LAST_W : STATUS_BTN_W;
+            TextWidget normalLabel = new TextWidget(status.displayName());
+            normalLabel.size(btnW, EL_H);
             normalLabel.alignment(Alignment.Center);
             normalLabel.color(0xFFFFFF);
-            TextWidget activeLabel = new TextWidget(s.displayName());
-            activeLabel.size(120, EL_H);
+            TextWidget activeLabel = new TextWidget(status.displayName());
+            activeLabel.size(btnW, EL_H);
             activeLabel.alignment(Alignment.Center);
             activeLabel.color(0xFFFFFF);
             statusRow.child(
-                new ToggleButton().size(120, EL_H)
+                new ToggleButton().size(btnW, EL_H)
                     .value(new BoolValue.Dynamic(() -> task.status == status, selected -> {
                         if (selected) {
                             task.status = status;
@@ -179,13 +199,13 @@ public class TaskDetailWidget extends Flow {
                     .child(false, normalLabel)
                     .child(true, activeLabel));
         }
-        child(statusRow);
+        formList.child(statusRow);
 
         // Assignees
         TextWidget assigneesLabel = new TextWidget(t("foreman.gui.detail.assignees"));
         assigneesLabel.size(W, 14);
-        child(assigneesLabel);
-        child(new AssigneePickerWidget(task, data));
+        formList.child(assigneesLabel);
+        formList.child(new AssigneePickerWidget(task, data, W));
 
         // Location header: [label fills rest] [show-on-map label 72] [4px gap] [toggle 36]
         final int TOGGLE_W = 36;
@@ -220,23 +240,23 @@ public class TaskDetailWidget extends Flow {
                 }))
                 .child(false, mapOff)
                 .child(true, mapOn));
-        child(locationHeader);
-        child(buildLocationRow());
+        formList.child(locationHeader);
+        formList.child(buildLocationRow());
 
         // Subtasks
         TextWidget subtasksLabel = new TextWidget(t("foreman.gui.detail.subtasks"));
         subtasksLabel.size(W, 14);
-        child(subtasksLabel);
-        child(buildSubtaskList());
+        formList.child(subtasksLabel);
+        formList.child(buildSubtaskList());
     }
 
     private Flow buildLocationRow() {
-        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
-        // Layout: [x: 10][field][y: 10][field][z: 10][field][Pos 44]
-        // No margins — all sizes sum to W exactly
-        final int LABEL_W = 10;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
+        // Layout: [x: LABEL][field][GAP][y: LABEL][field][GAP][z: LABEL][field][Pos POS]
+        final int LABEL_W = 12;
+        final int GAP_W = 4;
         final int POS_W = 44;
-        final int FIELD_W = (W - 3 * LABEL_W - POS_W) / 3;
+        final int FIELD_W = (W - 3 * LABEL_W - 2 * GAP_W - POS_W) / 3;
         Flow row = Flow.row()
             .size(W, ROW_H);
 
@@ -247,7 +267,7 @@ public class TaskDetailWidget extends Flow {
         PlainTextField xField = new PlainTextField();
         xField.size(FIELD_W, EL_H);
         xField.setTextColor(0xFFFFFF);
-        xField.padding(4, 0, 0, 0);
+        xField.padding(2, 0, 0, 0);
         xField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.x : 0), val -> {
             ensureLocation();
             try {
@@ -257,15 +277,18 @@ public class TaskDetailWidget extends Flow {
         }));
         row.child(xField);
 
+        // gap before y:
+        TextWidget gap1 = new TextWidget("");
+        gap1.size(GAP_W, EL_H);
+        row.child(gap1);
         TextWidget yLabel = new TextWidget("y:");
         yLabel.size(LABEL_W, EL_H);
         yLabel.alignment(Alignment.CenterLeft);
-        yLabel.padding(4, 0, 0, 0);
         row.child(yLabel);
         PlainTextField yField = new PlainTextField();
         yField.size(FIELD_W, EL_H);
         yField.setTextColor(0xFFFFFF);
-        yField.padding(4, 0, 0, 0);
+        yField.padding(2, 0, 0, 0);
         yField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.y : 0), val -> {
             ensureLocation();
             try {
@@ -275,15 +298,18 @@ public class TaskDetailWidget extends Flow {
         }));
         row.child(yField);
 
+        // gap before z:
+        TextWidget gap2 = new TextWidget("");
+        gap2.size(GAP_W, EL_H);
+        row.child(gap2);
         TextWidget zLabel = new TextWidget("z:");
         zLabel.size(LABEL_W, EL_H);
         zLabel.alignment(Alignment.CenterLeft);
-        zLabel.padding(4, 0, 0, 0);
         row.child(zLabel);
         PlainTextField zField = new PlainTextField();
         zField.size(FIELD_W, EL_H);
         zField.setTextColor(0xFFFFFF);
-        zField.padding(4, 0, 0, 0);
+        zField.padding(2, 0, 0, 0);
         zField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.z : 0), val -> {
             ensureLocation();
             try {
@@ -293,8 +319,8 @@ public class TaskDetailWidget extends Flow {
         }));
         row.child(zField);
 
-        // Pos button fills remaining space: W - 3*LABEL_W - 3*FIELD_W
-        final int actualPosW = W - 3 * LABEL_W - 3 * FIELD_W;
+        // Pos button fills remaining space
+        final int actualPosW = W - 3 * LABEL_W - 3 * FIELD_W - 2 * GAP_W;
         TextWidget posLabel = new TextWidget(t("foreman.gui.detail.pos"));
         posLabel.size(actualPosW, EL_H);
         posLabel.alignment(Alignment.Center);
@@ -319,7 +345,7 @@ public class TaskDetailWidget extends Flow {
     }
 
     private Flow buildSubtaskList() {
-        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
         Flow col = Flow.column();
         col.size(W, ROW_H);
         col.coverChildrenHeight(ROW_H);
