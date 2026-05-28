@@ -2,9 +2,9 @@
 
 A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman lets teams create, assign, and track tasks directly in-game, with a GUI, map markers, and a full command interface.
 
-|Todo List|Todo Edit|
+|Task List|Task Detail|
 |-|-|
-|<img width="778" height="1179" alt="java_SutgbKVhtc" src="https://github.com/user-attachments/assets/a0fb1831-cac1-43ac-a536-c4036a4b6a1e" />|<img width="774" height="1175" alt="java_4JCPwo1bFb" src="https://github.com/user-attachments/assets/bb663cb8-08f2-4f2d-b857-89574e109636" />| 
+|<img width="767" height="1170" alt="themes_comparison" src="https://github.com/user-attachments/assets/fdc49e1d-5aeb-4c1e-bf59-7bc2769ece62" />|<img width="771" height="1175" alt="themes_comparison_detail" src="https://github.com/user-attachments/assets/6afe1596-4bbf-4ae3-b9ab-e353e38e2732" />| 
 
 ## Features
 
@@ -13,7 +13,7 @@ A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman let
 - **Subtasks**: add checklist items to any task; check them off individually
 - **Assignees**: assign any online player to a task from the GUI or via command
 - **Map markers**: pin a world coordinate to a task and display it on the map (requires Navigator)
-- **Task icon**: set any item as a task icon by holding it and clicking the icon slot
+- **Task icon**: set any item as a task icon by dragging it from NEI onto the icon slot; right-click to clear
 - **Export / import**: dump a team's tasks to a JSON file and reload them on another world or share them
 - **Dark and light themes**: toggle with the sun button in the bottom-right of the GUI
 - **Search**: expandable search bar filters the task list live by title or description
@@ -26,8 +26,11 @@ A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman let
 | GTNHLib | 0.10.3+ |
 | ModularUI2 | 2.3.66-1.7.10+ |
 | Navigator *(optional)* | 1.1.3+ |
+| NotEnoughItems GTNH *(optional)* | 2.8.93-GTNH+ |
 
 Navigator is only required for map marker support. Without it the mod works normally and the Location section is still available for storing coordinates.
+
+NEI is only required for the icon ghost slot. Without it the icon slot is visible but cannot be interacted with.
 
 ## Installation
 
@@ -64,16 +67,16 @@ All commands are available to any player. The `reload` subcommand requires OP.
 
 ## GUI Overview
 
-The window is split into two panels.
+The window has two pages. Click a task row to open its detail page; use the back button (←) to return to the list.
 
-**Left panel - task list**
+**Page 1 - task list**
 - Three tabs across the top filter by status: To do / Doing / Done
 - The search button (magnifier icon) expands a live search field; click again to collapse and clear
-- `+ New Task` opens a blank create form on the right
+- `+ New Task` opens a blank create form
 - The sun/moon button in the bottom-right toggles the theme
 
-**Right panel - task detail**
-- **Icon slot** (top-left): left-click to set the icon from the item you are holding; right-click to clear
+**Page 2 - task detail**
+- **Icon slot** (top-left): drag any item from NEI onto the slot to set it as the task icon; right-click to clear
 - **Title field**: editable inline
 - **Delete button** (top-right): permanently deletes the task for the whole team
 - **Description**: free-text field
