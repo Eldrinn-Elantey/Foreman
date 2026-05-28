@@ -220,7 +220,7 @@ public class TaskDetailWidget extends Flow {
         TextWidget mapOff = new TextWidget(t("foreman.gui.detail.show_on_map.off"));
         mapOff.size(TOGGLE_W, EL_H);
         mapOff.alignment(Alignment.Center);
-        mapOff.color(0xAAAAAA);
+        mapOff.color(0xFFFFFF);
         TextWidget mapOn = new TextWidget(t("foreman.gui.detail.show_on_map.on"));
         mapOn.size(TOGGLE_W, EL_H);
         mapOn.alignment(Alignment.Center);

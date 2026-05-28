@@ -2,9 +2,9 @@
 
 A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman lets teams create, assign, and track tasks directly in-game, with a GUI, map markers, and a full command interface.
 
-|Task List|Task Detail|
-|-|-|
-|<img width="767" height="1170" alt="themes_comparison" src="https://github.com/user-attachments/assets/fdc49e1d-5aeb-4c1e-bf59-7bc2769ece62" />|<img width="771" height="1175" alt="themes_comparison_detail" src="https://github.com/user-attachments/assets/6afe1596-4bbf-4ae3-b9ab-e353e38e2732" />| 
+| Task List                               | Task Detail                                     |
+|-----------------------------------------|-------------------------------------------------|
+| ![Task List](img/themes_comparison.png) | ![Task Detail](img/themes_comparison_detail.png) | 
 
 ## Features
 
@@ -20,13 +20,13 @@ A task management mod for Minecraft 1.7.10 (GregTech: New Horizons). Foreman let
 
 ## Requirements
 
-| Dependency | Version |
-|---|---|
-| Minecraft Forge | 1.7.10 |
-| GTNHLib | 0.10.3+ |
-| ModularUI2 | 2.3.66-1.7.10+ |
-| Navigator *(optional)* | 1.1.3+ |
-| NotEnoughItems GTNH *(optional)* | 2.8.93-GTNH+ |
+| Dependency                       | Version        |
+|----------------------------------|----------------|
+| Minecraft Forge                  | 1.7.10         |
+| GTNHLib                          | 0.10.3+        |
+| ModularUI2                       | 2.3.66-1.7.10+ |
+| Navigator *(optional)*           | 1.1.3+         |
+| NotEnoughItems GTNH *(optional)* | 2.8.93-GTNH+   |
 
 Navigator is only required for map marker support. Without it the mod works normally and the Location section is still available for storing coordinates.
 
@@ -51,17 +51,17 @@ All commands are available to any player. The `reload` subcommand requires OP.
 /foreman <subcommand>
 ```
 
-| Subcommand | Description |
-|---|---|
-| `list` | List all tasks for your team |
-| `create <title>` | Create a new task with the given title |
-| `assign <id> <player>` | Assign a player to a task |
-| `unassign <id> <player>` | Remove a player from a task |
-| `done <id>` | Mark a task as Done |
-| `export [name]` | Export all team tasks to `<world>/foreman/<name>.json` |
-| `import <name>` | Import tasks from `<world>/foreman/<name>.json` |
-| `reload` | Re-sync tasks to all online players (OP only) |
-| `gui` | Open the GUI (player only) |
+| Subcommand               | Description                                            |
+|--------------------------|--------------------------------------------------------|
+| `list`                   | List all tasks for your team                           |
+| `create <title>`         | Create a new task with the given title                 |
+| `assign <id> <player>`   | Assign a player to a task                              |
+| `unassign <id> <player>` | Remove a player from a task                            |
+| `done <id>`              | Mark a task as Done                                    |
+| `export [name]`          | Export all team tasks to `<world>/foreman/<name>.json` |
+| `import <name>`          | Import tasks from `<world>/foreman/<name>.json`        |
+| `reload`                 | Re-sync tasks to all online players (OP only)          |
+| `gui`                    | Open the GUI (player only)                             |
 
 `<id>` is the first 8 characters of a task UUID, shown in `/foreman list` and in the GUI.
 

@@ -78,7 +78,7 @@ public class IconSlotWidget extends Widget<IconSlotWidget>
     }
 
     @SuppressWarnings("unchecked")
-    private static ItemStack parseIconItem(String iconItem) {
+    public static ItemStack parseIconItem(String iconItem) {
         if (iconItem == null || iconItem.isEmpty()) return null;
         String[] parts = iconItem.split(":");
         if (parts.length < 3) return null;
