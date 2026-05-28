@@ -7,8 +7,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.cleanroommc.modularui.api.IMuiScreen;
 import com.cleanroommc.modularui.factory.ClientGUI;
+import com.cleanroommc.modularui.screen.ModularContainer;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.widgets.PagedWidget;
 import com.eldrinn.foreman.gui.widget.TaskDetailWidget;
 import com.eldrinn.foreman.gui.widget.TaskListWidget;
@@ -102,7 +104,11 @@ public class ForemanGui {
                     .controller(data.pageController)
                     .initialPage(initialPage));
             LOG.info("[ForemanGui] tick() calling ClientGUI.open()");
-            ClientGUI.open(new ModularScreen("foreman", panel));
+            UISettings settings = new UISettings();
+            settings.getRecipeViewerSettings()
+                .enable();
+            settings.customContainer(ModularContainer::new);
+            ClientGUI.open(new ModularScreen("foreman", panel), settings);
             activeData = data;
             LOG.info("[ForemanGui] tick() done");
         } catch (Exception e) {

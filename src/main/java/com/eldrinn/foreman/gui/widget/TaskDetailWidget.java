@@ -4,10 +4,7 @@ import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
-import com.cleanroommc.modularui.drawable.ItemDrawable;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
@@ -112,26 +109,22 @@ public class TaskDetailWidget extends Flow {
         headerGap.size(HEADER_GAP, EL_H);
         header.child(headerGap);
 
-        // Icon button — second child
-        ItemStack iconStack = parseIconItem(task.iconItem);
-        header.child(
-            new ButtonWidget<>().size(EL_H, EL_H)
-                .overlay(new ItemDrawable(iconStack))
-                .onMousePressed(btn -> {
-                    if (btn == 0) {
-                        ItemStack held = Minecraft.getMinecraft().thePlayer.getHeldItem();
-                        task.iconItem = held != null
-                            ? Item.itemRegistry.getNameForObject(held.getItem()) + ":" + held.getItemDamage()
-                            : null;
-                    } else if (btn == 1) {
-                        task.iconItem = null;
-                    } else {
-                        return false;
-                    }
-                    sendUpdate();
-                    ForemanGui.open(data);
-                    return true;
-                }));
+        // Icon slot — drag from NEI to set, right-click to clear
+        header.child(new IconSlotWidget(new IconSlotWidget.ItemHolder() {
+
+            @Override
+            public String get() {
+                return task.iconItem;
+            }
+
+            @Override
+            public void set(String v) {
+                task.iconItem = v;
+            }
+        }, () -> {
+            sendUpdate();
+            ForemanGui.open(data);
+        }).size(EL_H, EL_H));
         PlainTextField titleField = new PlainTextField();
         titleField.size(titleW, EL_H);
         titleField.setTextColor(0xFFFFFF);
@@ -410,20 +403,6 @@ public class TaskDetailWidget extends Flow {
                             return true;
                         })));
         return col;
-    }
-
-    private static ItemStack parseIconItem(String iconItem) {
-        if (iconItem == null) return null;
-        try {
-            int lastColon = iconItem.lastIndexOf(':');
-            String itemName = iconItem.substring(0, lastColon);
-            int meta = Integer.parseInt(iconItem.substring(lastColon + 1));
-            Item item = (Item) Item.itemRegistry.getObject(itemName);
-            if (item == null) return null;
-            return new ItemStack(item, 1, meta);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private void ensureLocation() {
