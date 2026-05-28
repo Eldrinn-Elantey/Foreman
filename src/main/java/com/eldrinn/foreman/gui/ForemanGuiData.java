@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.cleanroommc.modularui.widgets.PagedWidget;
 import com.eldrinn.foreman.data.TaskStatus;
 
 import cpw.mods.fml.relauncher.Side;
@@ -28,6 +29,8 @@ public class ForemanGuiData {
 
     /** Whether the search field is expanded. */
     public boolean searchExpanded = false;
+
+    public final PagedWidget.Controller pageController = new PagedWidget.Controller();
 
     public void selectTask(UUID id) {
         this.selectedTaskId = id;
