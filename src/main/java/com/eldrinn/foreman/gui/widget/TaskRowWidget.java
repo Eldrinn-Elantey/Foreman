@@ -26,7 +26,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class TaskRowWidget extends Flow {
 
     private static final int LEFT_WIDTH = ForemanGui.LEFT_WIDTH;
-    private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING;
+    public static final int SCROLLBAR_W = 4;
+    private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
     private static final int STATUS_BTN_W = 20;
     private static final int LABEL_W = ROW_WIDTH - STATUS_BTN_W - 2;
 
@@ -50,7 +51,7 @@ public class TaskRowWidget extends Flow {
         selectBtn.value(new BoolValue.Dynamic(() -> task.id.equals(data.selectedTaskId), selected -> {
             if (selected) {
                 data.selectTask(task.id);
-                data.pageController.setPage(1);
+                ForemanGui.open(data);
             }
         }));
         selectBtn.child(false, normalLabel);
