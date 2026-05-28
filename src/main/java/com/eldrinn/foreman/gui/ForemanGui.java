@@ -21,10 +21,10 @@ public class ForemanGui {
 
     private static final Logger LOG = LogManager.getLogger("ForemanGui");
 
-    public static final int WIDTH = 900;
+    public static final int WIDTH = 752;
     public static final int HEIGHT = 580;
     public static final int LEFT_WIDTH = 380;
-    public static final int RIGHT_WIDTH = 480;
+    public static final int RIGHT_WIDTH = 372;
     public static final int PADDING = 6;
 
     public static final String THEME_DARK = "foreman_dark";
