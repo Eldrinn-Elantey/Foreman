@@ -50,7 +50,7 @@ public class TaskRowWidget extends Flow {
         selectBtn.value(new BoolValue.Dynamic(() -> task.id.equals(data.selectedTaskId), selected -> {
             if (selected) {
                 data.selectTask(task.id);
-                ForemanGui.open(data);
+                data.pageController.setPage(1);
             }
         }));
         selectBtn.child(false, normalLabel);
