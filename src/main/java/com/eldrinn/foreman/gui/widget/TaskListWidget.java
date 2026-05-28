@@ -67,8 +67,8 @@ public class TaskListWidget extends Flow {
                     data.searchExpanded = !data.searchExpanded;
                     if (!data.searchExpanded) {
                         data.searchQuery = "";
-                        ForemanGui.open(data);
                     }
+                    ForemanGui.open(data);
                     return true;
                 }));
         if (data.searchExpanded) {
