@@ -28,7 +28,7 @@ public class AssigneePickerWidget extends Flow {
 
     public AssigneePickerWidget(Task task, ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
-        final int W = ForemanGui.RIGHT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
         size(W, 20);
         coverChildrenHeight(20);
         for (PlayerEntry player : resolveAvailablePlayers()) {

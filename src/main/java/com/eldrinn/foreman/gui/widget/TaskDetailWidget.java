@@ -47,7 +47,7 @@ public class TaskDetailWidget extends Flow {
     public TaskDetailWidget(ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
         this.data = data;
-        size(ForemanGui.RIGHT_WIDTH, ForemanGui.HEIGHT);
+        size(ForemanGui.LEFT_WIDTH, ForemanGui.HEIGHT);
         padding(ForemanGui.PADDING);
 
         if (data.createMode) {
@@ -71,13 +71,32 @@ public class TaskDetailWidget extends Flow {
     }
 
     private void buildForm() {
-        final int W = ForemanGui.RIGHT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
 
-        // Header: [icon 20] [title fills rest] [delete 20]
+        // Header: [back 20] [icon 20] [title fills rest] [delete 20]
         // No margins — sizes sum exactly to W
-        final int titleW = isNew ? W - EL_H : W - EL_H * 2;
+        final int BACK_BTN_W = EL_H; // 20px
+        final int titleW = isNew ? W - BACK_BTN_W - EL_H
+                                 : W - BACK_BTN_W - EL_H * 2;
         Flow header = Flow.row()
             .size(W, ROW_H);
+
+        // Back button — first child
+        TextWidget backLabel = new TextWidget("←");
+        backLabel.size(BACK_BTN_W, EL_H);
+        backLabel.alignment(Alignment.Center);
+        backLabel.color(0xFFFFFF);
+        header.child(
+            new ButtonWidget<>().size(BACK_BTN_W, EL_H)
+                .child(backLabel)
+                .onMousePressed(btn -> {
+                    if (btn != 0) return false;
+                    data.clear();
+                    data.pageController.setPage(0);
+                    return true;
+                }));
+
+        // Icon button — second child
         ItemStack iconStack = parseIconItem(task.iconItem);
         header.child(
             new ButtonWidget<>().size(EL_H, EL_H)
@@ -212,7 +231,7 @@ public class TaskDetailWidget extends Flow {
     }
 
     private Flow buildLocationRow() {
-        final int W = ForemanGui.RIGHT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
         // Layout: [x: 10][field][y: 10][field][z: 10][field][Pos 44]
         // No margins — all sizes sum to W exactly
         final int LABEL_W = 10;
@@ -300,7 +319,7 @@ public class TaskDetailWidget extends Flow {
     }
 
     private Flow buildSubtaskList() {
-        final int W = ForemanGui.RIGHT_WIDTH - 2 * ForemanGui.PADDING;
+        final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING;
         Flow col = Flow.column();
         col.size(W, ROW_H);
         col.coverChildrenHeight(ROW_H);
