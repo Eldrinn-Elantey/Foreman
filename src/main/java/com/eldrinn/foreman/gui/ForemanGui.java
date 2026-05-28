@@ -9,6 +9,7 @@ import com.cleanroommc.modularui.api.IMuiScreen;
 import com.cleanroommc.modularui.factory.ClientGUI;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.widgets.PagedWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.eldrinn.foreman.gui.widget.TaskDetailWidget;
 import com.eldrinn.foreman.gui.widget.TaskListWidget;
@@ -21,10 +22,9 @@ public class ForemanGui {
 
     private static final Logger LOG = LogManager.getLogger("ForemanGui");
 
-    public static final int WIDTH = 752;
+    public static final int WIDTH = 380;
     public static final int HEIGHT = 580;
     public static final int LEFT_WIDTH = 380;
-    public static final int RIGHT_WIDTH = 372;
     public static final int PADDING = 6;
 
     public static final String THEME_DARK = "foreman_dark";
@@ -86,11 +86,14 @@ public class ForemanGui {
             ModularPanel panel = ModularPanel.defaultPanel("foreman_main", WIDTH, HEIGHT);
             panel.themeOverride(currentTheme);
             LOG.info("[ForemanGui] tick() building widgets");
+            int initialPage = (data.createMode || data.selectedTaskId != null) ? 1 : 0;
             panel.child(
-                Flow.row()
+                new PagedWidget<>()
                     .size(WIDTH, HEIGHT)
-                    .child(new TaskListWidget(data))
-                    .child(new TaskDetailWidget(data)));
+                    .addPage(new TaskListWidget(data))
+                    .addPage(new TaskDetailWidget(data))
+                    .controller(data.pageController)
+                    .initialPage(initialPage));
             LOG.info("[ForemanGui] tick() calling ClientGUI.open()");
             ClientGUI.open(new ModularScreen("foreman", panel));
             activeData = data;
