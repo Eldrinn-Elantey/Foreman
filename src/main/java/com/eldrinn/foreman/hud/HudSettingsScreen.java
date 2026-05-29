@@ -189,14 +189,16 @@ public class HudSettingsScreen extends GuiScreen {
     protected void mouseMovedOrUp(int mouseX, int mouseY, int button) {
         if (button == 0 && dragging) {
             dragging = false;
-            ForemanClientCache.getPinConfig().save();
+            ForemanClientCache.getPinConfig()
+                .save();
         }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
-            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft()
+                .displayGuiScreen(null);
         }
     }
 }

@@ -64,10 +64,8 @@ public class HudRenderer {
         int sy = (int) (startY / s);
 
         if (cfg.isShowBackground()) {
-            net.minecraft.client.gui.Gui.drawRect(
-                sx - PADDING, sy - PADDING,
-                sx + blockW + PADDING, sy + totalHeight + PADDING,
-                0x88000000);
+            net.minecraft.client.gui.Gui
+                .drawRect(sx - PADDING, sy - PADDING, sx + blockW + PADDING, sy + totalHeight + PADDING, 0x88000000);
         }
 
         int y = sy;
@@ -84,8 +82,7 @@ public class HudRenderer {
      * Returns [startX, startY, blockW, totalH] for the HUD block in screen coordinates.
      * Used by HudSettingsScreen to position the drag handle.
      */
-    public static int[] computeHudPosition(PinnedTasksConfig cfg, int sw, int sh,
-        FontRenderer fr, List<Task> pinned) {
+    public static int[] computeHudPosition(PinnedTasksConfig cfg, int sw, int sh, FontRenderer fr, List<Task> pinned) {
         int blockW = maxBlockWidth(pinned, fr);
         int totalH = totalHeight(pinned);
         int x = anchorX(cfg.getAnchor(), sw, blockW) + cfg.getOffsetX();
@@ -94,7 +91,8 @@ public class HudRenderer {
     }
 
     private int drawTaskBlock(FontRenderer fr, Task task, int x, int y) {
-        String statusText = "[" + task.status.displayName().toUpperCase() + "]";
+        String statusText = "[" + task.status.displayName()
+            .toUpperCase() + "]";
         fr.drawStringWithShadow(statusText, x, y, statusColor(task.status));
         y += LINE_H;
 
@@ -136,7 +134,11 @@ public class HudRenderer {
     static int maxBlockWidth(List<Task> pinned, FontRenderer fr) {
         int max = 80;
         for (Task t : pinned) {
-            max = Math.max(max, fr.getStringWidth("[" + t.status.displayName().toUpperCase() + "]"));
+            max = Math.max(
+                max,
+                fr.getStringWidth(
+                    "[" + t.status.displayName()
+                        .toUpperCase() + "]"));
             max = Math.max(max, fr.getStringWidth(t.title));
             int shown = 0;
             for (Subtask st : t.subtasks) {
