@@ -3,6 +3,7 @@ package com.eldrinn.foreman.hud;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
@@ -24,7 +25,7 @@ public class HudRenderer {
     private static final int MAX_SUBTASKS_SHOWN = 3;
     private static final int LINE_H = 10;
     private static final int BLOCK_GAP = 4;
-    private static final int PADDING = 4;
+    static final int PADDING = 4;
 
     private static final int COLOR_WHITE = 0xFFFFFF;
     private static final int COLOR_GRAY = 0xAAAAAA;
@@ -35,7 +36,7 @@ public class HudRenderer {
     public void onRenderHud(RenderGameOverlayEvent.Post event) {
         if (event.type != RenderGameOverlayEvent.ElementType.TEXT) return;
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc.currentScreen != null) return;
+        if (mc.currentScreen != null && !(mc.currentScreen instanceof HudSettingsScreen)) return;
 
         PinnedTasksConfig cfg = ForemanClientCache.getPinConfig();
         if (!cfg.isHudVisible()) return;
@@ -47,11 +48,11 @@ public class HudRenderer {
         int sw = res.getScaledWidth();
         int sh = res.getScaledHeight();
 
-        int totalHeight = totalHeight(pinned);
-        int blockW = maxBlockWidth(pinned, mc);
-
-        int startX = anchorX(cfg.getAnchor(), sw, blockW) + cfg.getOffsetX();
-        int startY = anchorY(cfg.getAnchor(), sh, totalHeight) + cfg.getOffsetY();
+        int[] pos = computeHudPosition(cfg, sw, sh, mc.fontRenderer, pinned);
+        int startX = pos[0];
+        int startY = pos[1];
+        int blockW = pos[2];
+        int totalHeight = pos[3];
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glPushMatrix();
@@ -71,7 +72,7 @@ public class HudRenderer {
 
         int y = sy;
         for (Task task : pinned) {
-            y = drawTaskBlock(mc, task, sx, y);
+            y = drawTaskBlock(mc.fontRenderer, task, sx, y);
             y += BLOCK_GAP;
         }
 
@@ -79,21 +80,27 @@ public class HudRenderer {
         GL11.glPopAttrib();
     }
 
-    private int drawTaskBlock(Minecraft mc, Task task, int x, int y) {
-        net.minecraft.client.gui.FontRenderer fr = mc.fontRenderer;
+    /**
+     * Returns [startX, startY, blockW, totalH] for the HUD block in screen coordinates.
+     * Used by HudSettingsScreen to position the drag handle.
+     */
+    public static int[] computeHudPosition(PinnedTasksConfig cfg, int sw, int sh,
+        FontRenderer fr, List<Task> pinned) {
+        int blockW = maxBlockWidth(pinned, fr);
+        int totalH = totalHeight(pinned);
+        int x = anchorX(cfg.getAnchor(), sw, blockW) + cfg.getOffsetX();
+        int y = anchorY(cfg.getAnchor(), sh, totalH) + cfg.getOffsetY();
+        return new int[] { x, y, blockW, totalH };
+    }
 
-        // Status line
-        String statusText = "[" + task.status.displayName()
-            .toUpperCase() + "]";
-        int statusColor = statusColor(task.status);
-        fr.drawStringWithShadow(statusText, x, y, statusColor);
+    private int drawTaskBlock(FontRenderer fr, Task task, int x, int y) {
+        String statusText = "[" + task.status.displayName().toUpperCase() + "]";
+        fr.drawStringWithShadow(statusText, x, y, statusColor(task.status));
         y += LINE_H;
 
-        // Title
         fr.drawStringWithShadow(task.title, x, y, COLOR_WHITE);
         y += LINE_H;
 
-        // Subtasks
         if (!task.subtasks.isEmpty()) {
             int shown = 0;
             for (Subtask st : task.subtasks) {
@@ -114,7 +121,7 @@ public class HudRenderer {
         return y;
     }
 
-    private int totalHeight(List<Task> pinned) {
+    static int totalHeight(List<Task> pinned) {
         int h = 0;
         for (Task t : pinned) {
             h += LINE_H * 2; // status + title
@@ -126,15 +133,10 @@ public class HudRenderer {
         return h;
     }
 
-    private int maxBlockWidth(List<Task> pinned, Minecraft mc) {
-        int max = 80; // minimum width
-        net.minecraft.client.gui.FontRenderer fr = mc.fontRenderer;
+    static int maxBlockWidth(List<Task> pinned, FontRenderer fr) {
+        int max = 80;
         for (Task t : pinned) {
-            max = Math.max(
-                max,
-                fr.getStringWidth(
-                    "[" + t.status.displayName()
-                        .toUpperCase() + "]"));
+            max = Math.max(max, fr.getStringWidth("[" + t.status.displayName().toUpperCase() + "]"));
             max = Math.max(max, fr.getStringWidth(t.title));
             int shown = 0;
             for (Subtask st : t.subtasks) {
@@ -146,7 +148,7 @@ public class HudRenderer {
         return max + PADDING * 2;
     }
 
-    private int anchorX(PinnedTasksConfig.Anchor anchor, int sw, int blockW) {
+    static int anchorX(PinnedTasksConfig.Anchor anchor, int sw, int blockW) {
         switch (anchor) {
             case TOP_LEFT:
             case MIDDLE_LEFT:
@@ -161,7 +163,7 @@ public class HudRenderer {
         }
     }
 
-    private int anchorY(PinnedTasksConfig.Anchor anchor, int sh, int totalH) {
+    static int anchorY(PinnedTasksConfig.Anchor anchor, int sh, int totalH) {
         switch (anchor) {
             case TOP_LEFT:
             case TOP_CENTER:

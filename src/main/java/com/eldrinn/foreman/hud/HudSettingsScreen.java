@@ -1,5 +1,7 @@
 package com.eldrinn.foreman.hud;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -8,6 +10,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.config.PinnedTasksConfig;
+import com.eldrinn.foreman.data.Task;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -20,8 +23,10 @@ public class HudSettingsScreen extends GuiScreen {
     private static final int PANEL_PADDING = 6;
 
     private boolean dragging = false;
-    private int dragOffsetX;
+    private int dragOffsetX; // mouse offset within handle at drag start
     private int dragOffsetY;
+    private int dragAnchorX; // anchorX at drag start (constant during drag)
+    private int dragAnchorY;
 
     @Override
     public boolean doesGuiPauseGame() {
@@ -40,14 +45,20 @@ public class HudSettingsScreen extends GuiScreen {
         String hint = "Drag handle to reposition HUD  |  ESC to close";
         fontRendererObj.drawStringWithShadow(hint, (sw - fontRendererObj.getStringWidth(hint)) / 2, 6, 0xAAAAAA);
 
-        int hx = cfg.getOffsetX();
-        int hy = cfg.getOffsetY();
+        int[] pos = hudPos(cfg, sw, sh);
+        int hx = pos[0];
+        int hy = pos[1];
         drawRect(hx, hy, hx + HANDLE_SIZE, hy + HANDLE_SIZE, 0xFFCC3333);
         fontRendererObj.drawStringWithShadow("⇔", hx + 1, hy + 1, 0xFFFFFF);
 
         drawControlPanel(cfg, sw, sh);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    private int[] hudPos(PinnedTasksConfig cfg, int sw, int sh) {
+        List<Task> pinned = ForemanClientCache.getPinnedTasks();
+        return HudRenderer.computeHudPosition(cfg, sw, sh, fontRendererObj, pinned);
     }
 
     private void drawControlPanel(PinnedTasksConfig cfg, int sw, int sh) {
@@ -99,13 +110,17 @@ public class HudSettingsScreen extends GuiScreen {
         int sw = res.getScaledWidth();
         int sh = res.getScaledHeight();
 
-        int hx = cfg.getOffsetX();
-        int hy = cfg.getOffsetY();
+        int[] pos = hudPos(cfg, sw, sh);
+        int hx = pos[0];
+        int hy = pos[1];
 
         if (mouseX >= hx && mouseX <= hx + HANDLE_SIZE && mouseY >= hy && mouseY <= hy + HANDLE_SIZE) {
             dragging = true;
             dragOffsetX = mouseX - hx;
             dragOffsetY = mouseY - hy;
+            // anchorX = hx - offsetX; store so drag updates offset correctly
+            dragAnchorX = hx - cfg.getOffsetX();
+            dragAnchorY = hy - cfg.getOffsetY();
             return;
         }
 
@@ -165,24 +180,23 @@ public class HudSettingsScreen extends GuiScreen {
     protected void mouseClickMove(int mouseX, int mouseY, int button, long timeSinceLastClick) {
         if (!dragging || button != 0) return;
         PinnedTasksConfig cfg = ForemanClientCache.getPinConfig();
-        cfg.setOffsetXRaw(mouseX - dragOffsetX);
-        cfg.setOffsetYRaw(mouseY - dragOffsetY);
+        // offset = absolute position - anchor (keeps offsetX/Y as delta from anchor)
+        cfg.setOffsetXRaw(mouseX - dragOffsetX - dragAnchorX);
+        cfg.setOffsetYRaw(mouseY - dragOffsetY - dragAnchorY);
     }
 
     @Override
     protected void mouseMovedOrUp(int mouseX, int mouseY, int button) {
         if (button == 0 && dragging) {
             dragging = false;
-            ForemanClientCache.getPinConfig()
-                .save();
+            ForemanClientCache.getPinConfig().save();
         }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
-            Minecraft.getMinecraft()
-                .displayGuiScreen(null);
+            Minecraft.getMinecraft().displayGuiScreen(null);
         }
     }
 }
