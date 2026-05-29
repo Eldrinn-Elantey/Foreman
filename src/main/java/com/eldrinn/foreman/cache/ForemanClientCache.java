@@ -1,13 +1,16 @@
 package com.eldrinn.foreman.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.eldrinn.foreman.config.PinnedTasksConfig;
 import com.eldrinn.foreman.data.Task;
 
 import cpw.mods.fml.relauncher.Side;
@@ -21,11 +24,22 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ForemanClientCache {
 
     private static Map<UUID, Task> tasks = new LinkedHashMap<>();
+    private static final PinnedTasksConfig pinConfig = new PinnedTasksConfig();
+
+    public static void loadConfig() {
+        pinConfig.load();
+    }
 
     public static void update(Collection<Task> incoming) {
         tasks.clear();
         for (Task t : incoming) {
             tasks.put(t.id, t);
+        }
+        // Remove stale pins (tasks that no longer exist)
+        for (UUID pinned : new ArrayList<>(pinConfig.getPinnedIds())) {
+            if (!tasks.containsKey(pinned)) {
+                pinConfig.unpin(pinned);
+            }
         }
         if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {
             com.eldrinn.foreman.navigator.TaskLayerManager.INSTANCE.refreshFromCache(tasks.values());
@@ -39,5 +53,36 @@ public class ForemanClientCache {
     @Nullable
     public static Task get(UUID id) {
         return tasks.get(id);
+    }
+
+    // --- Pin API ---
+
+    public static boolean pin(UUID id) {
+        return pinConfig.pin(id);
+    }
+
+    public static void unpin(UUID id) {
+        pinConfig.unpin(id);
+    }
+
+    public static boolean isPinned(UUID id) {
+        return pinConfig.isPinned(id);
+    }
+
+    public static boolean canPin() {
+        return pinConfig.getPinnedIds().size() < PinnedTasksConfig.getMaxPins();
+    }
+
+    public static List<Task> getPinnedTasks() {
+        List<Task> result = new ArrayList<>();
+        for (UUID id : pinConfig.getPinnedIds()) {
+            Task t = tasks.get(id);
+            if (t != null) result.add(t);
+        }
+        return result;
+    }
+
+    public static PinnedTasksConfig getPinConfig() {
+        return pinConfig;
     }
 }
