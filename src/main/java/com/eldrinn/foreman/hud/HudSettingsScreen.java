@@ -144,7 +144,7 @@ public class HudSettingsScreen extends GuiScreen {
             cfg.setShowBackground(!cfg.isShowBackground());
             return;
         }
-        cx += bgW + 4;
+        cx += bgW + 12;
 
         String hudLabel = "HUD: " + (cfg.isHudVisible() ? "ON" : "OFF");
         int hudW = fontRenderer.getStringWidth(hudLabel) + 8;
@@ -152,7 +152,7 @@ public class HudSettingsScreen extends GuiScreen {
             cfg.setHudVisible(!cfg.isHudVisible());
             return;
         }
-        cx += hudW + 4;
+        cx += hudW + 12;
 
         String resetLabel = "Reset";
         int resetW = fontRenderer.getStringWidth(resetLabel) + 8;
