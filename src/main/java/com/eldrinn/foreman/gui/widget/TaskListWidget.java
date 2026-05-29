@@ -104,14 +104,19 @@ public class TaskListWidget extends Flow {
         }
         child(list);
 
-        // Bottom bar: New Task + theme toggle
+        // Bottom bar: New Task + HUD settings + theme toggle
         final int THEME_BTN_W = 28;
-        final int NEW_TASK_W = W - THEME_BTN_W - 4;
+        final int HUD_BTN_W = 20;
+        final int NEW_TASK_W = W - THEME_BTN_W - HUD_BTN_W - 8;
 
         TextWidget newTaskLabel = new TextWidget(
             net.minecraft.util.StatCollector.translateToLocal("foreman.gui.new_task"));
         newTaskLabel.size(NEW_TASK_W, 24);
         newTaskLabel.alignment(Alignment.Center);
+
+        TextWidget hudSettingsLabel = new TextWidget("⚙");
+        hudSettingsLabel.size(HUD_BTN_W, 24);
+        hudSettingsLabel.alignment(Alignment.Center);
 
         TextWidget themeLabel = new TextWidget("☀");
         themeLabel.size(THEME_BTN_W, 24);
@@ -127,6 +132,15 @@ public class TaskListWidget extends Flow {
                             if (btn != 0) return false;
                             data.enterCreateMode();
                             ForemanGui.open(data);
+                            return true;
+                        }))
+                .child(
+                    new ButtonWidget<>().size(HUD_BTN_W, 24)
+                        .child(hudSettingsLabel)
+                        .onMousePressed(btn -> {
+                            if (btn != 0) return false;
+                            net.minecraft.client.Minecraft.getMinecraft()
+                                .displayGuiScreen(new com.eldrinn.foreman.hud.HudSettingsScreen());
                             return true;
                         }))
                 .child(
