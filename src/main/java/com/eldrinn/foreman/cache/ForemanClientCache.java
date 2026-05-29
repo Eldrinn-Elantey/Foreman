@@ -66,7 +66,8 @@ public class ForemanClientCache {
     }
 
     public static boolean canPin() {
-        return pinConfig.getPinnedIds().size() < PinnedTasksConfig.getMaxPins();
+        return pinConfig.getPinnedIds()
+            .size() < PinnedTasksConfig.getMaxPins();
     }
 
     public static List<Task> getPinnedTasks() {

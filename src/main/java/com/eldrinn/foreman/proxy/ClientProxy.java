@@ -36,7 +36,9 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         ClientRegistry.registerKeyBinding(KEY_OPEN_GUI);
-        FMLCommonHandler.instance().bus().register(this);
+        FMLCommonHandler.instance()
+            .bus()
+            .register(this);
         MinecraftForge.EVENT_BUS.register(new HudRenderer());
         ForemanClientCache.loadConfig();
         if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {

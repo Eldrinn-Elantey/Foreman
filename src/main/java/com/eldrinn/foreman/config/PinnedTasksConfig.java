@@ -20,16 +20,24 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class PinnedTasksConfig {
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+        .create();
     private static final int MAX_PINS = 5;
 
     public enum Anchor {
-        TOP_LEFT, TOP_CENTER, TOP_RIGHT,
-        MIDDLE_LEFT, MIDDLE_CENTER, MIDDLE_RIGHT,
-        BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+        TOP_LEFT,
+        TOP_CENTER,
+        TOP_RIGHT,
+        MIDDLE_LEFT,
+        MIDDLE_CENTER,
+        MIDDLE_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_CENTER,
+        BOTTOM_RIGHT
     }
 
     private static class Data {
+
         @SerializedName("pinnedTasks")
         List<String> pinnedTasks = new ArrayList<>();
 
@@ -38,6 +46,7 @@ public class PinnedTasksConfig {
     }
 
     private static class HudPosition {
+
         @SerializedName("anchor")
         String anchor = Anchor.TOP_RIGHT.name();
 
@@ -68,7 +77,8 @@ public class PinnedTasksConfig {
 
     public void save() {
         File file = configFile();
-        file.getParentFile().mkdirs();
+        file.getParentFile()
+            .mkdirs();
         try (FileWriter writer = new FileWriter(file)) {
             GSON.toJson(data, writer);
         } catch (IOException e) {
@@ -125,10 +135,17 @@ public class PinnedTasksConfig {
         }
     }
 
-    public int getOffsetX() { return data.hud.offsetX; }
-    public int getOffsetY() { return data.hud.offsetY; }
+    public int getOffsetX() {
+        return data.hud.offsetX;
+    }
 
-    public static int getMaxPins() { return MAX_PINS; }
+    public int getOffsetY() {
+        return data.hud.offsetY;
+    }
+
+    public static int getMaxPins() {
+        return MAX_PINS;
+    }
 
     private static File configFile() {
         return new File(Minecraft.getMinecraft().mcDataDir, "config/foreman_pins.json");

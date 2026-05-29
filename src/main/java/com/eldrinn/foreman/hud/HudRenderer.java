@@ -6,13 +6,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
+import org.lwjgl.opengl.GL11;
+
 import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.config.PinnedTasksConfig;
 import com.eldrinn.foreman.data.Subtask;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
-
-import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -63,7 +63,8 @@ public class HudRenderer {
         net.minecraft.client.gui.FontRenderer fr = mc.fontRenderer;
 
         // Status line
-        String statusText = "[" + task.status.displayName().toUpperCase() + "]";
+        String statusText = "[" + task.status.displayName()
+            .toUpperCase() + "]";
         int statusColor = statusColor(task.status);
         fr.drawStringWithShadow(statusText, x, y, statusColor);
         y += LINE_H;
@@ -109,7 +110,11 @@ public class HudRenderer {
         int max = 80; // minimum width
         net.minecraft.client.gui.FontRenderer fr = mc.fontRenderer;
         for (Task t : pinned) {
-            max = Math.max(max, fr.getStringWidth("[" + t.status.displayName().toUpperCase() + "]"));
+            max = Math.max(
+                max,
+                fr.getStringWidth(
+                    "[" + t.status.displayName()
+                        .toUpperCase() + "]"));
             max = Math.max(max, fr.getStringWidth(t.title));
             int shown = 0;
             for (Subtask st : t.subtasks) {
@@ -123,9 +128,13 @@ public class HudRenderer {
 
     private int anchorX(PinnedTasksConfig.Anchor anchor, int sw, int blockW) {
         switch (anchor) {
-            case TOP_LEFT: case MIDDLE_LEFT: case BOTTOM_LEFT:
+            case TOP_LEFT:
+            case MIDDLE_LEFT:
+            case BOTTOM_LEFT:
                 return 2;
-            case TOP_CENTER: case MIDDLE_CENTER: case BOTTOM_CENTER:
+            case TOP_CENTER:
+            case MIDDLE_CENTER:
+            case BOTTOM_CENTER:
                 return (sw - blockW) / 2;
             default: // RIGHT
                 return sw - blockW - 2;
@@ -134,9 +143,13 @@ public class HudRenderer {
 
     private int anchorY(PinnedTasksConfig.Anchor anchor, int sh, int totalH) {
         switch (anchor) {
-            case TOP_LEFT: case TOP_CENTER: case TOP_RIGHT:
+            case TOP_LEFT:
+            case TOP_CENTER:
+            case TOP_RIGHT:
                 return 2;
-            case MIDDLE_LEFT: case MIDDLE_CENTER: case MIDDLE_RIGHT:
+            case MIDDLE_LEFT:
+            case MIDDLE_CENTER:
+            case MIDDLE_RIGHT:
                 return (sh - totalH) / 2;
             default: // BOTTOM
                 return sh - totalH - 2;
@@ -145,9 +158,12 @@ public class HudRenderer {
 
     private int statusColor(TaskStatus status) {
         switch (status) {
-            case IN_PROGRESS: return COLOR_YELLOW;
-            case DONE:        return COLOR_GREEN;
-            default:          return COLOR_GRAY;
+            case IN_PROGRESS:
+                return COLOR_YELLOW;
+            case DONE:
+                return COLOR_GREEN;
+            default:
+                return COLOR_GRAY;
         }
     }
 }
