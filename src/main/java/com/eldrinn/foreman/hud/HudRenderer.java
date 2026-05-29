@@ -107,6 +107,12 @@ public class HudRenderer {
         for (Task t : pinned) {
             max = Math.max(max, fr.getStringWidth("[" + t.status.displayName().toUpperCase() + "]"));
             max = Math.max(max, fr.getStringWidth(t.title));
+            int shown = 0;
+            for (Subtask st : t.subtasks) {
+                if (shown >= MAX_SUBTASKS_SHOWN) break;
+                max = Math.max(max, PADDING + fr.getStringWidth((st.checked ? "✔ " : "○ ") + st.title));
+                shown++;
+            }
         }
         return max + PADDING * 2;
     }
