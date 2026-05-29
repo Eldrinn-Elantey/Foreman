@@ -38,12 +38,12 @@ public class HudSettingsScreen extends GuiScreen {
         int sh = res.getScaledHeight();
 
         String hint = "Drag handle to reposition HUD  |  ESC to close";
-        fontRenderer.drawStringWithShadow(hint, (sw - fontRenderer.getStringWidth(hint)) / 2, 6, 0xAAAAAA);
+        fontRendererObj.drawStringWithShadow(hint, (sw - fontRendererObj.getStringWidth(hint)) / 2, 6, 0xAAAAAA);
 
         int hx = cfg.getOffsetX();
         int hy = cfg.getOffsetY();
         drawRect(hx, hy, hx + HANDLE_SIZE, hy + HANDLE_SIZE, 0xFFCC3333);
-        fontRenderer.drawStringWithShadow("⇔", hx + 1, hy + 1, 0xFFFFFF);
+        fontRendererObj.drawStringWithShadow("⇔", hx + 1, hy + 1, 0xFFFFFF);
 
         drawControlPanel(cfg, sw, sh);
 
@@ -59,36 +59,36 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
-        fontRenderer.drawStringWithShadow("Scale:", cx, py + 7, 0xAAAAAA);
-        cx += fontRenderer.getStringWidth("Scale:") + 4;
+        fontRendererObj.drawStringWithShadow("Scale:", cx, py + 7, 0xAAAAAA);
+        cx += fontRendererObj.getStringWidth("Scale:") + 4;
 
         drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
-        fontRenderer.drawStringWithShadow("-", cx + 4, py + 7, 0xFFFFFF);
+        fontRendererObj.drawStringWithShadow("-", cx + 4, py + 7, 0xFFFFFF);
         cx += 16;
 
         String scaleLabel = String.format("%.2fx", cfg.getScale());
-        fontRenderer.drawStringWithShadow(scaleLabel, cx, py + 7, 0xFFFFFF);
-        cx += fontRenderer.getStringWidth(scaleLabel) + 4;
+        fontRendererObj.drawStringWithShadow(scaleLabel, cx, py + 7, 0xFFFFFF);
+        cx += fontRendererObj.getStringWidth(scaleLabel) + 4;
 
         drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
-        fontRenderer.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
+        fontRendererObj.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
         cx += 20;
 
         String bgLabel = "BG: " + (cfg.isShowBackground() ? "ON" : "OFF");
         int bgColor = cfg.isShowBackground() ? 0xFF8BC34A : 0xFFAAAAAA;
-        drawRect(cx, py + 2, cx + fontRenderer.getStringWidth(bgLabel) + 8, py + 22, 0xFF444444);
-        fontRenderer.drawStringWithShadow(bgLabel, cx + 4, py + 7, bgColor);
-        cx += fontRenderer.getStringWidth(bgLabel) + 12;
+        drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(bgLabel) + 8, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow(bgLabel, cx + 4, py + 7, bgColor);
+        cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
         String hudLabel = "HUD: " + (cfg.isHudVisible() ? "ON" : "OFF");
         int hudColor = cfg.isHudVisible() ? 0xFF8BC34A : 0xFFAAAAAA;
-        drawRect(cx, py + 2, cx + fontRenderer.getStringWidth(hudLabel) + 8, py + 22, 0xFF444444);
-        fontRenderer.drawStringWithShadow(hudLabel, cx + 4, py + 7, hudColor);
-        cx += fontRenderer.getStringWidth(hudLabel) + 12;
+        drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(hudLabel) + 8, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow(hudLabel, cx + 4, py + 7, hudColor);
+        cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
         String resetLabel = "Reset";
-        drawRect(cx, py + 2, cx + fontRenderer.getStringWidth(resetLabel) + 8, py + 22, 0xFF884444);
-        fontRenderer.drawStringWithShadow(resetLabel, cx + 4, py + 7, 0xFFFFFF);
+        drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(resetLabel) + 8, py + 22, 0xFF884444);
+        fontRendererObj.drawStringWithShadow(resetLabel, cx + 4, py + 7, 0xFFFFFF);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
-        cx += fontRenderer.getStringWidth("Scale:") + 4;
+        cx += fontRendererObj.getStringWidth("Scale:") + 4;
 
         if (mouseX >= cx && mouseX <= cx + 14) {
             cfg.setScale(cfg.getScale() - 0.25);
@@ -130,7 +130,7 @@ public class HudSettingsScreen extends GuiScreen {
         cx += 16;
 
         String scaleLabel = String.format("%.2fx", cfg.getScale());
-        cx += fontRenderer.getStringWidth(scaleLabel) + 4;
+        cx += fontRendererObj.getStringWidth(scaleLabel) + 4;
 
         if (mouseX >= cx && mouseX <= cx + 14) {
             cfg.setScale(cfg.getScale() + 0.25);
@@ -139,23 +139,23 @@ public class HudSettingsScreen extends GuiScreen {
         cx += 20;
 
         String bgLabel = "BG: " + (cfg.isShowBackground() ? "ON" : "OFF");
-        int bgW = fontRenderer.getStringWidth(bgLabel) + 8;
+        int bgW = fontRendererObj.getStringWidth(bgLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + bgW) {
             cfg.setShowBackground(!cfg.isShowBackground());
             return;
         }
-        cx += fontRenderer.getStringWidth(bgLabel) + 12;
+        cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
         String hudLabel = "HUD: " + (cfg.isHudVisible() ? "ON" : "OFF");
-        int hudW = fontRenderer.getStringWidth(hudLabel) + 8;
+        int hudW = fontRendererObj.getStringWidth(hudLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + hudW) {
             cfg.setHudVisible(!cfg.isHudVisible());
             return;
         }
-        cx += fontRenderer.getStringWidth(hudLabel) + 12;
+        cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
         String resetLabel = "Reset";
-        int resetW = fontRenderer.getStringWidth(resetLabel) + 8;
+        int resetW = fontRendererObj.getStringWidth(resetLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + resetW) {
             cfg.resetToDefaults();
         }
@@ -173,14 +173,16 @@ public class HudSettingsScreen extends GuiScreen {
     protected void mouseMovedOrUp(int mouseX, int mouseY, int button) {
         if (button == 0 && dragging) {
             dragging = false;
-            ForemanClientCache.getPinConfig().save();
+            ForemanClientCache.getPinConfig()
+                .save();
         }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
-            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft()
+                .displayGuiScreen(null);
         }
     }
 }
