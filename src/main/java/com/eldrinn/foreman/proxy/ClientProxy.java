@@ -1,10 +1,13 @@
 package com.eldrinn.foreman.proxy;
 
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Keyboard;
 
+import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.gui.ForemanGui;
+import com.eldrinn.foreman.hud.HudRenderer;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -36,6 +39,8 @@ public class ClientProxy extends CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(this);
+        MinecraftForge.EVENT_BUS.register(new HudRenderer());
+        ForemanClientCache.loadConfig();
         if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {
             com.gtnewhorizons.navigator.api.NavigatorApi
                 .registerLayerManager(com.eldrinn.foreman.navigator.TaskLayerManager.INSTANCE);

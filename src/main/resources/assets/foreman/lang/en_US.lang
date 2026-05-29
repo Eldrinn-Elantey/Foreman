@@ -27,3 +27,6 @@ foreman.chat.assigned=§a[Foreman]§r You have been assigned to: §e%s
 foreman.status.open=Open
 foreman.status.in_progress=In Progress
 foreman.status.done=Done
+foreman.gui.pin=Pin to HUD
+foreman.gui.unpin=Unpin from HUD
+foreman.gui.pin.max=Max 5 tasks pinned

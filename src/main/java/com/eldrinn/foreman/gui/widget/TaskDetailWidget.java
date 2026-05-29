@@ -86,7 +86,7 @@ public class TaskDetailWidget extends Flow {
         // Header: [back 20] [gap 4] [icon 20] [title fills rest] [delete 20]
         final int BACK_BTN_W = EL_H; // 20px
         final int HEADER_GAP = 4;
-        final int titleW = isNew ? W - BACK_BTN_W - HEADER_GAP - EL_H : W - BACK_BTN_W - HEADER_GAP - EL_H * 2;
+        final int titleW = isNew ? W - BACK_BTN_W - HEADER_GAP - EL_H : W - BACK_BTN_W - HEADER_GAP - EL_H * 3;
         Flow header = Flow.row()
             .size(W, ROW_H);
 
@@ -141,6 +141,30 @@ public class TaskDetailWidget extends Flow {
                         if (btn != 0) return false;
                         ForemanNetwork.CHANNEL.sendToServer(new DeleteTaskPacket(task.id));
                         data.clear();
+                        ForemanGui.open(data);
+                        return true;
+                    }));
+
+            boolean pinned = ForemanClientCache.isPinned(task.id);
+            boolean canPin = ForemanClientCache.canPin();
+            String pinLabel = pinned ? "★" : "☆";
+            int pinColor = pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555);
+
+            TextWidget pinIcon = new TextWidget(pinLabel);
+            pinIcon.size(EL_H, EL_H);
+            pinIcon.alignment(Alignment.Center);
+            pinIcon.color(pinColor);
+
+            header.child(
+                new ButtonWidget<>().size(EL_H, EL_H)
+                    .child(pinIcon)
+                    .onMousePressed(btn -> {
+                        if (btn != 0) return false;
+                        if (pinned) {
+                            ForemanClientCache.unpin(task.id);
+                        } else {
+                            ForemanClientCache.pin(task.id);
+                        }
                         ForemanGui.open(data);
                         return true;
                     }));

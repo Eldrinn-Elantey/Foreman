@@ -20,6 +20,7 @@ import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
 import com.eldrinn.foreman.gui.ForemanGui;
@@ -38,7 +39,8 @@ public class TaskRowWidget extends Flow {
     private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
     private static final int STATUS_BTN_W = 20;
     private static final int ICON_W = 20;
-    private static final int LABEL_W = ROW_WIDTH - ICON_W - STATUS_BTN_W - 2;
+    private static final int PIN_BTN_W = 14;
+    private static final int LABEL_W = ROW_WIDTH - ICON_W - STATUS_BTN_W - PIN_BTN_W - 2;
 
     public TaskRowWidget(Task task, ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.X);
@@ -83,7 +85,32 @@ public class TaskRowWidget extends Flow {
             return true;
         });
 
+        boolean pinned = ForemanClientCache.isPinned(task.id);
+        boolean canPin = ForemanClientCache.canPin();
+        String pinLabel = pinned ? "★" : "☆";
+        int pinColor = pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555);
+
+        TextWidget pinIcon = new TextWidget(pinLabel);
+        pinIcon.size(PIN_BTN_W, 20);
+        pinIcon.alignment(Alignment.Center);
+        pinIcon.color(pinColor);
+
+        ButtonWidget<?> pinBtn = new ButtonWidget<>();
+        pinBtn.size(PIN_BTN_W, 20);
+        pinBtn.child(pinIcon);
+        pinBtn.onMousePressed(btn -> {
+            if (btn != 0) return false;
+            if (ForemanClientCache.isPinned(task.id)) {
+                ForemanClientCache.unpin(task.id);
+            } else {
+                ForemanClientCache.pin(task.id);
+            }
+            ForemanGui.open(data);
+            return true;
+        });
+
         child(selectBtn);
+        child(pinBtn);
         child(statusBtn);
     }
 
