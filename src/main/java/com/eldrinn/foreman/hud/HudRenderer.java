@@ -63,10 +63,9 @@ public class HudRenderer {
         int sy = (int) (startY / s);
 
         if (cfg.isShowBackground()) {
-            int totalH = totalHeight(pinned);
             net.minecraft.client.gui.Gui.drawRect(
                 sx - PADDING, sy - PADDING,
-                sx + blockW + PADDING, sy + totalH + PADDING,
+                sx + blockW + PADDING, sy + totalHeight + PADDING,
                 0x88000000);
         }
 
