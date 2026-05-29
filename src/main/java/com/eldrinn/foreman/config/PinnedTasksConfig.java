@@ -55,6 +55,15 @@ public class PinnedTasksConfig {
 
         @SerializedName("offsetY")
         int offsetY = 0;
+
+        @SerializedName("scale")
+        double scale = 1.0;
+
+        @SerializedName("showBackground")
+        boolean showBackground = true;
+
+        @SerializedName("hudVisible")
+        boolean hudVisible = true;
     }
 
     private Data data = new Data();
@@ -141,6 +150,53 @@ public class PinnedTasksConfig {
 
     public int getOffsetY() {
         return data.hud.offsetY;
+    }
+
+    public double getScale() {
+        return data.hud.scale;
+    }
+
+    public void setScale(double scale) {
+        data.hud.scale = Math.max(0.5, Math.min(2.0, scale));
+        save();
+    }
+
+    public boolean isShowBackground() {
+        return data.hud.showBackground;
+    }
+
+    public void setShowBackground(boolean showBackground) {
+        data.hud.showBackground = showBackground;
+        save();
+    }
+
+    public boolean isHudVisible() {
+        return data.hud.hudVisible;
+    }
+
+    public void setHudVisible(boolean hudVisible) {
+        data.hud.hudVisible = hudVisible;
+        save();
+    }
+
+    /** Writes offsetX to memory only — caller must call save() when drag ends. */
+    public void setOffsetXRaw(int offsetX) {
+        data.hud.offsetX = offsetX;
+    }
+
+    /** Writes offsetY to memory only — caller must call save() when drag ends. */
+    public void setOffsetYRaw(int offsetY) {
+        data.hud.offsetY = offsetY;
+    }
+
+    public void resetToDefaults() {
+        data.hud.anchor = Anchor.TOP_RIGHT.name();
+        data.hud.offsetX = 0;
+        data.hud.offsetY = 0;
+        data.hud.scale = 1.0;
+        data.hud.showBackground = true;
+        data.hud.hudVisible = true;
+        save();
     }
 
     public static int getMaxPins() {
