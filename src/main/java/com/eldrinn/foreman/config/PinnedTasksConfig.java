@@ -58,6 +58,7 @@ public class PinnedTasksConfig {
             if (loaded != null) {
                 data = loaded;
                 if (data.hud == null) data.hud = new HudPosition();
+                if (data.pinnedTasks == null) data.pinnedTasks = new ArrayList<>();
             }
         } catch (IOException e) {
             org.apache.logging.log4j.LogManager.getLogger("foreman")
@@ -100,8 +101,9 @@ public class PinnedTasksConfig {
     }
 
     public void unpin(UUID id) {
-        data.pinnedTasks.remove(id.toString());
-        save();
+        if (data.pinnedTasks.remove(id.toString())) {
+            save();
+        }
     }
 
     public Anchor getAnchor() {
