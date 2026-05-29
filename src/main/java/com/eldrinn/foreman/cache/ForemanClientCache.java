@@ -35,12 +35,8 @@ public class ForemanClientCache {
         for (Task t : incoming) {
             tasks.put(t.id, t);
         }
-        // Remove stale pins (tasks that no longer exist)
-        for (UUID pinned : new ArrayList<>(pinConfig.getPinnedIds())) {
-            if (!tasks.containsKey(pinned)) {
-                pinConfig.unpin(pinned);
-            }
-        }
+        // Remove stale pins in one batch — single save if anything changed
+        pinConfig.removeStale(tasks.keySet());
         if (cpw.mods.fml.common.Loader.isModLoaded("navigator")) {
             com.eldrinn.foreman.navigator.TaskLayerManager.INSTANCE.refreshFromCache(tasks.values());
         }

@@ -106,6 +106,17 @@ public class PinnedTasksConfig {
         }
     }
 
+    public void removeStale(java.util.Set<UUID> existing) {
+        boolean changed = data.pinnedTasks.removeIf(s -> {
+            try {
+                return !existing.contains(UUID.fromString(s));
+            } catch (IllegalArgumentException e) {
+                return true; // remove malformed entries too
+            }
+        });
+        if (changed) save();
+    }
+
     public Anchor getAnchor() {
         try {
             return Anchor.valueOf(data.hud.anchor);
