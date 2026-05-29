@@ -12,6 +12,8 @@ import com.eldrinn.foreman.data.Subtask;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
 
+import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -48,11 +50,13 @@ public class HudRenderer {
         int startX = anchorX(cfg.getAnchor(), sw, maxBlockWidth(pinned, mc)) + cfg.getOffsetX();
         int startY = anchorY(cfg.getAnchor(), sh, totalHeight) + cfg.getOffsetY();
 
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         int y = startY;
         for (Task task : pinned) {
             y = drawTaskBlock(mc, task, startX, y);
             y += BLOCK_GAP;
         }
+        GL11.glPopAttrib();
     }
 
     private int drawTaskBlock(Minecraft mc, Task task, int x, int y) {
