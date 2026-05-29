@@ -37,6 +37,9 @@ public class HudRenderer {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.currentScreen != null) return;
 
+        PinnedTasksConfig cfg = ForemanClientCache.getPinConfig();
+        if (!cfg.isHudVisible()) return;
+
         List<Task> pinned = ForemanClientCache.getPinnedTasks();
         if (pinned.isEmpty()) return;
 
@@ -45,17 +48,35 @@ public class HudRenderer {
         int sh = res.getScaledHeight();
 
         int totalHeight = totalHeight(pinned);
+        int blockW = maxBlockWidth(pinned, mc);
 
-        PinnedTasksConfig cfg = ForemanClientCache.getPinConfig();
-        int startX = anchorX(cfg.getAnchor(), sw, maxBlockWidth(pinned, mc)) + cfg.getOffsetX();
+        int startX = anchorX(cfg.getAnchor(), sw, blockW) + cfg.getOffsetX();
         int startY = anchorY(cfg.getAnchor(), sh, totalHeight) + cfg.getOffsetY();
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        int y = startY;
+        GL11.glPushMatrix();
+        GL11.glScaled(cfg.getScale(), cfg.getScale(), 1.0);
+
+        // Coordinates must be divided by scale because GL matrix already scaled up
+        double s = cfg.getScale();
+        int sx = (int) (startX / s);
+        int sy = (int) (startY / s);
+
+        if (cfg.isShowBackground()) {
+            int totalH = totalHeight(pinned);
+            net.minecraft.client.gui.Gui.drawRect(
+                sx - PADDING, sy - PADDING,
+                sx + blockW + PADDING, sy + totalH + PADDING,
+                0x88000000);
+        }
+
+        int y = sy;
         for (Task task : pinned) {
-            y = drawTaskBlock(mc, task, startX, y);
+            y = drawTaskBlock(mc, task, sx, y);
             y += BLOCK_GAP;
         }
+
+        GL11.glPopMatrix();
         GL11.glPopAttrib();
     }
 
