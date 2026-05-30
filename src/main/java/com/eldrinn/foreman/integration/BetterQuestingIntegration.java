@@ -7,6 +7,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 
+import com.eldrinn.foreman.data.Subtask;
+import com.eldrinn.foreman.data.Task;
+import com.eldrinn.foreman.data.TaskStatus;
+import com.eldrinn.foreman.network.CreateTaskPacket;
+import com.eldrinn.foreman.network.ForemanNetwork;
+
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -15,12 +21,6 @@ import betterquesting.api2.client.gui.context.IQuestContextMenuEntry;
 import betterquesting.api2.client.gui.context.QuestContextMenuRegistry;
 import betterquesting.api2.storage.DBEntry;
 import bq_standard.tasks.TaskRetrieval;
-
-import com.eldrinn.foreman.data.Subtask;
-import com.eldrinn.foreman.data.Task;
-import com.eldrinn.foreman.data.TaskStatus;
-import com.eldrinn.foreman.network.CreateTaskPacket;
-import com.eldrinn.foreman.network.ForemanNetwork;
 
 /**
  * Registers Foreman's entry in BetterQuesting's quest context menu.
@@ -62,11 +62,13 @@ public final class BetterQuestingIntegration {
         }
 
         // Map TaskRetrieval required items to subtasks
-        for (DBEntry<ITask> entry : quest.getTasks().getEntries()) {
+        for (DBEntry<ITask> entry : quest.getTasks()
+            .getEntries()) {
             if (entry.getValue() instanceof TaskRetrieval) {
                 TaskRetrieval retrieval = (TaskRetrieval) entry.getValue();
                 for (BigItemStack required : retrieval.requiredItems) {
-                    String itemName = required.getBaseStack().getDisplayName();
+                    String itemName = required.getBaseStack()
+                        .getDisplayName();
                     task.subtasks.add(new Subtask(UUID.randomUUID(), required.stackSize + "x " + itemName, false));
                 }
             }
@@ -74,7 +76,7 @@ public final class BetterQuestingIntegration {
 
         ForemanNetwork.CHANNEL.sendToServer(new CreateTaskPacket(task));
 
-        Minecraft.getMinecraft().thePlayer.addChatMessage(
-            new ChatComponentText("§aForeman: task \"" + title + "\" created."));
+        Minecraft.getMinecraft().thePlayer
+            .addChatMessage(new ChatComponentText("§aForeman: task \"" + title + "\" created."));
     }
 }
