@@ -5,15 +5,20 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.config.PinnedTasksConfig;
 import com.eldrinn.foreman.data.Subtask;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
+import com.eldrinn.foreman.gui.widget.IconSlotWidget;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -22,8 +27,12 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class HudRenderer {
 
+    private static final RenderItem RENDER_ITEM = new RenderItem();
+
     private static final int MAX_SUBTASKS_SHOWN = 3;
     private static final int LINE_H = 10;
+    private static final int ICON_SIZE = 10; // item icon scaled to match line height
+    private static final int ICON_GAP = 2;
     private static final int BLOCK_GAP = 4;
     static final int PADDING = 4;
 
@@ -96,7 +105,13 @@ public class HudRenderer {
         fr.drawStringWithShadow(statusText, x, y, statusColor(task.status));
         y += LINE_H;
 
-        fr.drawStringWithShadow(task.title, x, y, COLOR_WHITE);
+        ItemStack iconStack = IconSlotWidget.parseIconItem(task.iconItem);
+        if (iconStack != null) {
+            drawItemIcon(iconStack, x, y);
+            fr.drawStringWithShadow(task.title, x + ICON_SIZE + ICON_GAP, y, COLOR_WHITE);
+        } else {
+            fr.drawStringWithShadow(task.title, x, y, COLOR_WHITE);
+        }
         y += LINE_H;
 
         if (!task.subtasks.isEmpty()) {
@@ -139,7 +154,8 @@ public class HudRenderer {
                 fr.getStringWidth(
                     "[" + t.status.displayName()
                         .toUpperCase() + "]"));
-            max = Math.max(max, fr.getStringWidth(t.title));
+            int titlePrefix = t.iconItem != null ? ICON_SIZE + ICON_GAP : 0;
+            max = Math.max(max, titlePrefix + fr.getStringWidth(t.title));
             int shown = 0;
             for (Subtask st : t.subtasks) {
                 if (shown >= MAX_SUBTASKS_SHOWN) break;
@@ -178,6 +194,23 @@ public class HudRenderer {
             default: // BOTTOM
                 return sh - totalH - 2;
         }
+    }
+
+    private void drawItemIcon(ItemStack stack, int x, int y) {
+        Minecraft mc = Minecraft.getMinecraft();
+        RenderHelper.enableGUIStandardItemLighting();
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+
+        // Scale 16x16 item down to ICON_SIZE
+        float s = ICON_SIZE / 16.0f;
+        GL11.glPushMatrix();
+        GL11.glTranslatef(x, y, 0);
+        GL11.glScalef(s, s, s);
+        RENDER_ITEM.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, stack, 0, 0);
+        GL11.glPopMatrix();
+
+        RenderHelper.disableStandardItemLighting();
+        GL11.glColor4f(1f, 1f, 1f, 1f);
     }
 
     private int statusColor(TaskStatus status) {
