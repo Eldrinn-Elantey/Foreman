@@ -152,9 +152,9 @@ public class TaskDetailWidget extends Flow {
             if (pinned) {
                 pinIcon = GuiTextures.FAVORITE.withColorOverride(0xFFF0C040);
             } else if (canPin) {
-                pinIcon = GuiTextures.FAVORITE_EMPTY;
+                pinIcon = GuiTextures.FAVORITE_OUTLINE;
             } else {
-                pinIcon = GuiTextures.FAVORITE_EMPTY.withColorOverride(0xFF555555);
+                pinIcon = GuiTextures.FAVORITE_OUTLINE.withColorOverride(0xFF555555);
             }
             ButtonWidget<?> pinBtn = new ButtonWidget<>();
             pinBtn.size(EL_H, EL_H);
