@@ -25,8 +25,6 @@ import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
 import com.eldrinn.foreman.gui.ForemanGui;
 import com.eldrinn.foreman.gui.ForemanGuiData;
-import com.eldrinn.foreman.network.ForemanNetwork;
-import com.eldrinn.foreman.network.UpdateTaskPacket;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -37,10 +35,9 @@ public class TaskRowWidget extends Flow {
     private static final int LEFT_WIDTH = ForemanGui.LEFT_WIDTH;
     public static final int SCROLLBAR_W = 4;
     private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
-    private static final int STATUS_BTN_W = 20;
     private static final int ICON_W = 20;
-    private static final int PIN_BTN_W = 14;
-    private static final int LABEL_W = ROW_WIDTH - ICON_W - STATUS_BTN_W - PIN_BTN_W - 2;
+    private static final int PIN_BTN_W = 20;
+    private static final int LABEL_W = ROW_WIDTH - ICON_W - PIN_BTN_W - 2;
 
     public TaskRowWidget(Task task, ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.X);
@@ -69,32 +66,12 @@ public class TaskRowWidget extends Flow {
         selectBtn.child(false, normalLabel);
         selectBtn.child(true, activeLabel);
 
-        TaskStatus next = nextStatus(task.status);
-        TextWidget nextLabel = new TextWidget(statusIcon(next));
-        nextLabel.size(STATUS_BTN_W, 20);
-        nextLabel.alignment(Alignment.Center);
-
-        ButtonWidget<?> statusBtn = new ButtonWidget<>();
-        statusBtn.size(STATUS_BTN_W, 20);
-        statusBtn.child(nextLabel);
-        statusBtn.onMousePressed(btn -> {
-            if (btn != 0) return false;
-            task.status = next;
-            ForemanNetwork.CHANNEL.sendToServer(new UpdateTaskPacket(task));
-            ForemanGui.open(data);
-            return true;
-        });
-
         boolean pinned = ForemanClientCache.isPinned(task.id);
         boolean canPin = ForemanClientCache.canPin();
-        String pinLabel = pinned ? "★" : "☆";
-        int pinColor = pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555);
-
-        TextWidget pinIcon = new TextWidget(pinLabel);
+        TextWidget pinIcon = new TextWidget(pinned ? "★" : "☆");
         pinIcon.size(PIN_BTN_W, 20);
         pinIcon.alignment(Alignment.Center);
-        pinIcon.color(pinColor);
-
+        pinIcon.color(pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555));
         ButtonWidget<?> pinBtn = new ButtonWidget<>();
         pinBtn.size(PIN_BTN_W, 20);
         pinBtn.child(pinIcon);
@@ -111,37 +88,10 @@ public class TaskRowWidget extends Flow {
 
         child(selectBtn);
         child(pinBtn);
-        child(statusBtn);
-    }
-
-    private static TaskStatus nextStatus(TaskStatus current) {
-        switch (current) {
-            case OPEN:
-                return TaskStatus.IN_PROGRESS;
-            case IN_PROGRESS:
-                return TaskStatus.DONE;
-            case DONE:
-                return TaskStatus.OPEN;
-            default:
-                return TaskStatus.OPEN;
-        }
     }
 
     private static String buildLabel(Task task) {
         return truncate(task.title, 28) + "  " + buildAssigneeText(task);
-    }
-
-    private static String statusIcon(TaskStatus status) {
-        switch (status) {
-            case OPEN:
-                return "○";
-            case IN_PROGRESS:
-                return "~";
-            case DONE:
-                return "✔";
-            default:
-                return "?";
-        }
     }
 
     private static String buildAssigneeText(Task task) {
@@ -212,26 +162,8 @@ public class TaskRowWidget extends Flow {
                     getArea().width - 2 * pad,
                     getArea().height - 2 * pad,
                     context.getCurrentDrawingZ());
-            } else {
-                // fallback to status symbol
-                String symbol = statusFallback(status);
-                int x = getArea().width / 2 - 3;
-                int y = getArea().height / 2 - 4;
-                Minecraft.getMinecraft().fontRenderer.drawString(symbol, x, y, 0xAAAAAA);
             }
-        }
-
-        private static String statusFallback(TaskStatus status) {
-            switch (status) {
-                case OPEN:
-                    return "○";
-                case IN_PROGRESS:
-                    return "~";
-                case DONE:
-                    return "✔";
-                default:
-                    return "?";
-            }
+            // no icon item — draw nothing
         }
     }
 }
