@@ -8,6 +8,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 import org.lwjgl.opengl.GL11;
@@ -119,14 +120,18 @@ public class HudRenderer {
             for (Subtask st : task.subtasks) {
                 if (shown >= MAX_SUBTASKS_SHOWN) break;
                 int color = st.checked ? COLOR_GRAY : COLOR_WHITE;
-                String label = st.checked ? "§m✔ " + st.title + "§r" : "○ " + st.title;
+                String label = st.checked ? "§m- " + st.title + "§r" : "- " + st.title;
                 fr.drawStringWithShadow(label, x + PADDING, y, color);
                 y += LINE_H;
                 shown++;
             }
             int remaining = task.subtasks.size() - shown;
             if (remaining > 0) {
-                fr.drawStringWithShadow("  +" + remaining + " more", x + PADDING, y, COLOR_GRAY);
+                fr.drawStringWithShadow(
+                    StatCollector.translateToLocalFormatted("foreman.gui.row.more", remaining),
+                    x + PADDING,
+                    y,
+                    COLOR_GRAY);
                 y += LINE_H;
             }
         }
@@ -159,7 +164,7 @@ public class HudRenderer {
             int shown = 0;
             for (Subtask st : t.subtasks) {
                 if (shown >= MAX_SUBTASKS_SHOWN) break;
-                max = Math.max(max, PADDING + fr.getStringWidth((st.checked ? "✔ " : "○ ") + st.title));
+                max = Math.max(max, PADDING + fr.getStringWidth("- " + st.title));
                 shown++;
             }
         }

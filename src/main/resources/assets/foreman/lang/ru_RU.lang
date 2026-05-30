@@ -30,3 +30,35 @@ foreman.status.done=Готово
 foreman.gui.pin=Закрепить на HUD
 foreman.gui.unpin=Открепить от HUD
 foreman.gui.pin.max=Максимум 5 задач
+
+# HUD settings screen
+foreman.hud.settings.hint=Зажмите маркер чтобы переместить HUD  |  ESC — закрыть
+foreman.hud.settings.scale=Масштаб:
+foreman.hud.settings.bg=Фон: %s
+foreman.hud.settings.hud=HUD: %s
+foreman.hud.settings.reset=Сброс
+foreman.hud.on=ВКЛ
+foreman.hud.off=ВЫКЛ
+
+# Command messages
+foreman.cmd.not_in_team=Вы не состоите в команде.
+foreman.cmd.no_tasks=Задач нет.
+foreman.cmd.need_op=Для этой команды нужны права OP.
+foreman.cmd.synced=Задачи синхронизированы со всеми онлайн-игроками.
+foreman.cmd.gui_client_only=GUI доступен только на клиенте.
+foreman.cmd.must_be_player=Команда должна быть выполнена игроком.
+foreman.cmd.created=Задача создана [%s] %s
+foreman.cmd.assigned_to=Игрок %s назначен на задачу %s
+foreman.cmd.unassigned_from=Игрок %s снят с задачи %s
+foreman.cmd.marked_done=Отмечено выполненным: %s
+foreman.cmd.exported=Экспортировано %s задач в файл %s
+foreman.cmd.export_failed=Ошибка экспорта: %s
+foreman.cmd.file_not_found=Файл не найден: %s
+foreman.cmd.imported=Импортировано %s задач.
+foreman.cmd.import_failed=Ошибка импорта: %s
+foreman.cmd.task_not_found=Задача не найдена: %s
+foreman.cmd.usage.create=Использование: /foreman create <название>
+foreman.cmd.usage.assign=Использование: /foreman assign <id> <игрок>
+foreman.cmd.usage.unassign=Использование: /foreman unassign <id> <игрок>
+foreman.cmd.usage.done=Использование: /foreman done <id>
+foreman.cmd.usage.import=Использование: /foreman import <имя_файла>
