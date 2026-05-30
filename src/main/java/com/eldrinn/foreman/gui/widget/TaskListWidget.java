@@ -2,6 +2,7 @@ package com.eldrinn.foreman.gui.widget;
 
 import java.util.Collection;
 
+import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
@@ -63,7 +64,7 @@ public class TaskListWidget extends Flow {
             .size(W, 20);
         searchRow.child(
             new ButtonWidget<>().size(SEARCH_BTN_W, 20)
-                .overlay(com.eldrinn.foreman.gui.ForemanIcons.SEARCH)
+                .overlay(GuiTextures.SEARCH)
                 .onMousePressed(btn -> {
                     if (btn != 0) return false;
                     data.searchExpanded = !data.searchExpanded;
@@ -105,22 +106,13 @@ public class TaskListWidget extends Flow {
         child(list);
 
         // Bottom bar: New Task + HUD settings + theme toggle
-        final int THEME_BTN_W = 28;
-        final int HUD_BTN_W = 20;
-        final int NEW_TASK_W = W - THEME_BTN_W - HUD_BTN_W - 8;
+        final int ICON_BTN_W = 20;
+        final int NEW_TASK_W = W - ICON_BTN_W * 2 - 4;
 
         TextWidget newTaskLabel = new TextWidget(
             net.minecraft.util.StatCollector.translateToLocal("foreman.gui.new_task"));
         newTaskLabel.size(NEW_TASK_W, 24);
         newTaskLabel.alignment(Alignment.Center);
-
-        TextWidget hudSettingsLabel = new TextWidget("⚙");
-        hudSettingsLabel.size(HUD_BTN_W, 24);
-        hudSettingsLabel.alignment(Alignment.Center);
-
-        TextWidget themeLabel = new TextWidget("☀");
-        themeLabel.size(THEME_BTN_W, 24);
-        themeLabel.alignment(Alignment.Center);
 
         child(
             Flow.row()
@@ -135,8 +127,8 @@ public class TaskListWidget extends Flow {
                             return true;
                         }))
                 .child(
-                    new ButtonWidget<>().size(HUD_BTN_W, 24)
-                        .child(hudSettingsLabel)
+                    new ButtonWidget<>().size(ICON_BTN_W, 24)
+                        .overlay(GuiTextures.GEAR)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             net.minecraft.client.Minecraft.getMinecraft()
@@ -144,8 +136,8 @@ public class TaskListWidget extends Flow {
                             return true;
                         }))
                 .child(
-                    new ButtonWidget<>().size(THEME_BTN_W, 24)
-                        .child(themeLabel)
+                    new ButtonWidget<>().size(ICON_BTN_W, 24)
+                        .overlay(GuiTextures.VISIBLE)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             ForemanGui.toggleTheme();

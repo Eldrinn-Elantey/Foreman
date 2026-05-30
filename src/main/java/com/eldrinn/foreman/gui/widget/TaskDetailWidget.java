@@ -5,6 +5,7 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
+import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
 import com.cleanroommc.modularui.value.StringValue;
@@ -83,21 +84,17 @@ public class TaskDetailWidget extends Flow {
         // Reserve space for the vertical scrollbar so it doesn't overlap content
         final int W = ForemanGui.LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
 
-        // Header: [back 20] [gap 4] [icon 20] [title fills rest] [delete 20]
+        // Header: [back 20] [gap 4] [icon 20] [title fills rest] [delete 20] [pin 20]
         final int BACK_BTN_W = EL_H; // 20px
         final int HEADER_GAP = 4;
         final int titleW = isNew ? W - BACK_BTN_W - HEADER_GAP - EL_H : W - BACK_BTN_W - HEADER_GAP - EL_H * 3;
         Flow header = Flow.row()
             .size(W, ROW_H);
 
-        // Back button — first child
-        TextWidget backLabel = new TextWidget("←");
-        backLabel.size(BACK_BTN_W, EL_H);
-        backLabel.alignment(Alignment.Center);
-        backLabel.color(0xAAAAAA);
+        // Back button
         header.child(
             new ButtonWidget<>().size(BACK_BTN_W, EL_H)
-                .child(backLabel)
+                .overlay(GuiTextures.LEFTLOAD)
                 .onMousePressed(btn -> {
                     if (btn != 0) return false;
                     data.clear();
@@ -136,7 +133,7 @@ public class TaskDetailWidget extends Flow {
         if (!isNew) {
             header.child(
                 new ButtonWidget<>().size(EL_H, EL_H)
-                    .overlay(com.eldrinn.foreman.gui.ForemanIcons.DELETE)
+                    .overlay(GuiTextures.REMOVE)
                     .onMousePressed(btn -> {
                         if (btn != 0) return false;
                         ForemanNetwork.CHANNEL.sendToServer(new DeleteTaskPacket(task.id));
@@ -147,27 +144,23 @@ public class TaskDetailWidget extends Flow {
 
             boolean pinned = ForemanClientCache.isPinned(task.id);
             boolean canPin = ForemanClientCache.canPin();
-            String pinLabel = pinned ? "★" : "☆";
-            int pinColor = pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555);
-
-            TextWidget pinIcon = new TextWidget(pinLabel);
+            TextWidget pinIcon = new TextWidget(pinned ? "★" : "☆");
             pinIcon.size(EL_H, EL_H);
             pinIcon.alignment(Alignment.Center);
-            pinIcon.color(pinColor);
-
-            header.child(
-                new ButtonWidget<>().size(EL_H, EL_H)
-                    .child(pinIcon)
-                    .onMousePressed(btn -> {
-                        if (btn != 0) return false;
-                        if (pinned) {
-                            ForemanClientCache.unpin(task.id);
-                        } else {
-                            ForemanClientCache.pin(task.id);
-                        }
-                        ForemanGui.open(data);
-                        return true;
-                    }));
+            pinIcon.color(pinned ? 0xF0C040 : (canPin ? 0xAAAAAA : 0x555555));
+            ButtonWidget<?> pinBtn = new ButtonWidget<>();
+            pinBtn.size(EL_H, EL_H);
+            pinBtn.child(pinIcon);
+            header.child(pinBtn.onMousePressed(btn -> {
+                if (btn != 0) return false;
+                if (pinned) {
+                    ForemanClientCache.unpin(task.id);
+                } else {
+                    ForemanClientCache.pin(task.id);
+                }
+                ForemanGui.open(data);
+                return true;
+            }));
         }
         formList.child(header);
 
@@ -246,7 +239,7 @@ public class TaskDetailWidget extends Flow {
                     task.showOnMap = val;
                     sendUpdate();
                 }))
-                .overlay(true, com.eldrinn.foreman.gui.ForemanIcons.CHECK_ON));
+                .overlay(true, GuiTextures.CHECKMARK));
         formList.child(locationHeader);
         formList.child(buildLocationRow());
 
@@ -359,30 +352,27 @@ public class TaskDetailWidget extends Flow {
 
         for (Subtask sub : task.subtasks) {
             Subtask s = sub;
-            TextWidget checkLabel = new TextWidget(s.checked ? "x" : " ");
-            checkLabel.size(EL_H, EL_H);
-            checkLabel.alignment(Alignment.Center);
             TextWidget subtaskTitle = new TextWidget(s.title);
             subtaskTitle.size(W - EL_H * 2, EL_H);
             subtaskTitle.alignment(Alignment.CenterLeft);
             subtaskTitle.padding(4, 0, 0, 0);
+            ButtonWidget<?> checkBtn = new ButtonWidget<>();
+            checkBtn.size(EL_H, EL_H);
+            if (s.checked) checkBtn.overlay(GuiTextures.CHECKMARK);
             col.child(
                 Flow.row()
                     .size(W, ROW_H)
-                    .child(
-                        new ButtonWidget<>().size(EL_H, EL_H)
-                            .child(checkLabel)
-                            .onMousePressed(btn -> {
-                                if (btn != 0) return false;
-                                s.checked = !s.checked;
-                                sendUpdate();
-                                ForemanGui.open(data);
-                                return true;
-                            }))
+                    .child(checkBtn.onMousePressed(btn -> {
+                        if (btn != 0) return false;
+                        s.checked = !s.checked;
+                        sendUpdate();
+                        ForemanGui.open(data);
+                        return true;
+                    }))
                     .child(subtaskTitle)
                     .child(
                         new ButtonWidget<>().size(EL_H, EL_H)
-                            .overlay(com.eldrinn.foreman.gui.ForemanIcons.DELETE)
+                            .overlay(GuiTextures.REMOVE)
                             .onMousePressed(btn -> {
                                 if (btn != 0) return false;
                                 task.subtasks.remove(s);
@@ -405,7 +395,7 @@ public class TaskDetailWidget extends Flow {
                 .child(addField)
                 .child(
                     new ButtonWidget<>().size(EL_H, EL_H)
-                        .overlay(com.eldrinn.foreman.gui.ForemanIcons.PLUS)
+                        .overlay(GuiTextures.ADD)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             String title = newTitle[0].trim();
