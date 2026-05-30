@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.input.Keyboard;
 
@@ -42,7 +43,7 @@ public class HudSettingsScreen extends GuiScreen {
         int sw = res.getScaledWidth();
         int sh = res.getScaledHeight();
 
-        String hint = "Drag handle to reposition HUD  |  ESC to close";
+        String hint = StatCollector.translateToLocal("foreman.hud.settings.hint");
         fontRendererObj.drawStringWithShadow(hint, (sw - fontRendererObj.getStringWidth(hint)) / 2, 6, 0xAAAAAA);
 
         int[] pos = hudPos(cfg, sw, sh);
@@ -70,8 +71,9 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
-        fontRendererObj.drawStringWithShadow("Scale:", cx, py + 7, 0xAAAAAA);
-        cx += fontRendererObj.getStringWidth("Scale:") + 4;
+        String scaleKey = StatCollector.translateToLocal("foreman.hud.settings.scale");
+        fontRendererObj.drawStringWithShadow(scaleKey, cx, py + 7, 0xAAAAAA);
+        cx += fontRendererObj.getStringWidth(scaleKey) + 4;
 
         drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
         fontRendererObj.drawStringWithShadow("-", cx + 4, py + 7, 0xFFFFFF);
@@ -85,19 +87,25 @@ public class HudSettingsScreen extends GuiScreen {
         fontRendererObj.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
         cx += 20;
 
-        String bgLabel = "BG: " + (cfg.isShowBackground() ? "ON" : "OFF");
+        String bgLabel = StatCollector.translateToLocalFormatted(
+            "foreman.hud.settings.bg",
+            cfg.isShowBackground() ? StatCollector.translateToLocal("foreman.hud.on")
+                : StatCollector.translateToLocal("foreman.hud.off"));
         int bgColor = cfg.isShowBackground() ? 0xFF8BC34A : 0xFFAAAAAA;
         drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(bgLabel) + 8, py + 22, 0xFF444444);
         fontRendererObj.drawStringWithShadow(bgLabel, cx + 4, py + 7, bgColor);
         cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
-        String hudLabel = "HUD: " + (cfg.isHudVisible() ? "ON" : "OFF");
+        String hudLabel = StatCollector.translateToLocalFormatted(
+            "foreman.hud.settings.hud",
+            cfg.isHudVisible() ? StatCollector.translateToLocal("foreman.hud.on")
+                : StatCollector.translateToLocal("foreman.hud.off"));
         int hudColor = cfg.isHudVisible() ? 0xFF8BC34A : 0xFFAAAAAA;
         drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(hudLabel) + 8, py + 22, 0xFF444444);
         fontRendererObj.drawStringWithShadow(hudLabel, cx + 4, py + 7, hudColor);
         cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
-        String resetLabel = "Reset";
+        String resetLabel = StatCollector.translateToLocal("foreman.hud.settings.reset");
         drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(resetLabel) + 8, py + 22, 0xFF884444);
         fontRendererObj.drawStringWithShadow(resetLabel, cx + 4, py + 7, 0xFFFFFF);
     }
@@ -136,7 +144,7 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
-        cx += fontRendererObj.getStringWidth("Scale:") + 4;
+        cx += fontRendererObj.getStringWidth(StatCollector.translateToLocal("foreman.hud.settings.scale")) + 4;
 
         if (mouseX >= cx && mouseX <= cx + 14) {
             cfg.setScale(cfg.getScale() - 0.25);
@@ -153,7 +161,10 @@ public class HudSettingsScreen extends GuiScreen {
         }
         cx += 20;
 
-        String bgLabel = "BG: " + (cfg.isShowBackground() ? "ON" : "OFF");
+        String bgLabel = StatCollector.translateToLocalFormatted(
+            "foreman.hud.settings.bg",
+            cfg.isShowBackground() ? StatCollector.translateToLocal("foreman.hud.on")
+                : StatCollector.translateToLocal("foreman.hud.off"));
         int bgW = fontRendererObj.getStringWidth(bgLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + bgW) {
             cfg.setShowBackground(!cfg.isShowBackground());
@@ -161,7 +172,10 @@ public class HudSettingsScreen extends GuiScreen {
         }
         cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
-        String hudLabel = "HUD: " + (cfg.isHudVisible() ? "ON" : "OFF");
+        String hudLabel = StatCollector.translateToLocalFormatted(
+            "foreman.hud.settings.hud",
+            cfg.isHudVisible() ? StatCollector.translateToLocal("foreman.hud.on")
+                : StatCollector.translateToLocal("foreman.hud.off"));
         int hudW = fontRendererObj.getStringWidth(hudLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + hudW) {
             cfg.setHudVisible(!cfg.isHudVisible());
@@ -169,7 +183,7 @@ public class HudSettingsScreen extends GuiScreen {
         }
         cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
-        String resetLabel = "Reset";
+        String resetLabel = StatCollector.translateToLocal("foreman.hud.settings.reset");
         int resetW = fontRendererObj.getStringWidth(resetLabel) + 8;
         if (mouseX >= cx && mouseX <= cx + resetW) {
             cfg.resetToDefaults();

@@ -37,7 +37,9 @@ public class TaskMapRenderStep extends UniversalInteractableStep<TaskMapLocation
     @Override
     public void getTooltip(List<String> list) {
         list.add(location.getTitle());
-        list.add(statusLabel(location.getStatus()));
+        list.add(
+            location.getStatus()
+                .displayName());
     }
 
     private static int bgColor(TaskStatus status) {
@@ -56,11 +58,4 @@ public class TaskMapRenderStep extends UniversalInteractableStep<TaskMapLocation
         };
     }
 
-    private static String statusLabel(TaskStatus status) {
-        return switch (status) {
-            case OPEN -> "Open";
-            case IN_PROGRESS -> "In Progress";
-            case DONE -> "Done";
-        };
-    }
 }

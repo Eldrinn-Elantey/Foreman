@@ -30,3 +30,35 @@ foreman.status.done=Done
 foreman.gui.pin=Pin to HUD
 foreman.gui.unpin=Unpin from HUD
 foreman.gui.pin.max=Max 5 tasks pinned
+
+# HUD settings screen
+foreman.hud.settings.hint=Drag handle to reposition HUD  |  ESC to close
+foreman.hud.settings.scale=Scale:
+foreman.hud.settings.bg=BG: %s
+foreman.hud.settings.hud=HUD: %s
+foreman.hud.settings.reset=Reset
+foreman.hud.on=ON
+foreman.hud.off=OFF
+
+# Command messages
+foreman.cmd.not_in_team=You are not in a team.
+foreman.cmd.no_tasks=No tasks.
+foreman.cmd.need_op=You need to be OP to use this command.
+foreman.cmd.synced=Synced tasks to all online players.
+foreman.cmd.gui_client_only=GUI is client-only.
+foreman.cmd.must_be_player=Must be run by a player.
+foreman.cmd.created=Created task [%s] %s
+foreman.cmd.assigned_to=Assigned %s to %s
+foreman.cmd.unassigned_from=Unassigned %s from %s
+foreman.cmd.marked_done=Marked done: %s
+foreman.cmd.exported=Exported %s tasks to %s
+foreman.cmd.export_failed=Export failed: %s
+foreman.cmd.file_not_found=File not found: %s
+foreman.cmd.imported=Imported %s tasks.
+foreman.cmd.import_failed=Import failed: %s
+foreman.cmd.task_not_found=Task not found: %s
+foreman.cmd.usage.create=Usage: /foreman create <title>
+foreman.cmd.usage.assign=Usage: /foreman assign <id> <player>
+foreman.cmd.usage.unassign=Usage: /foreman unassign <id> <player>
+foreman.cmd.usage.done=Usage: /foreman done <id>
+foreman.cmd.usage.import=Usage: /foreman import <filename>

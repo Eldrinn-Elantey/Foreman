@@ -82,11 +82,11 @@ public class ForemanCommand extends CommandBase {
             case "list": {
                 Collection<Task> tasks = getSenderTasks(sender, data);
                 if (tasks == null) {
-                    sender.addChatMessage(new ChatComponentText("You are not in a team."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
                     return;
                 }
                 if (tasks.isEmpty()) {
-                    sender.addChatMessage(new ChatComponentText("No tasks."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.no_tasks"));
                 } else {
                     for (Task t : tasks) {
                         String shortId = t.id.toString()
@@ -99,7 +99,7 @@ public class ForemanCommand extends CommandBase {
             }
             case "reload": {
                 if (!isOp(sender)) {
-                    sender.addChatMessage(new ChatComponentText("You need to be OP to use this command."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.need_op"));
                     return;
                 }
                 // Re-sends each online player their team's current task list.
@@ -111,7 +111,7 @@ public class ForemanCommand extends CommandBase {
                     if (team == null) continue;
                     ForemanNetwork.CHANNEL.sendTo(new SyncAllTasksPacket(data.getTeamTasks(team.getTeamId())), player);
                 }
-                sender.addChatMessage(new ChatComponentText("Synced tasks to all online players."));
+                sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.synced"));
                 break;
             }
             case "gui": {
@@ -119,23 +119,23 @@ public class ForemanCommand extends CommandBase {
                     ForemanNetwork.CHANNEL
                         .sendTo(new com.eldrinn.foreman.network.OpenGuiPacket(), (EntityPlayerMP) sender);
                 } else {
-                    sender.addChatMessage(new ChatComponentText("GUI is client-only."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.gui_client_only"));
                 }
                 break;
             }
             case "create": {
                 if (args.length < 2) {
-                    sender.addChatMessage(new ChatComponentText("Usage: /foreman create <title>"));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.create"));
                     return;
                 }
                 if (!(sender instanceof EntityPlayerMP)) {
-                    sender.addChatMessage(new ChatComponentText("Must be run by a player."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.must_be_player"));
                     return;
                 }
                 EntityPlayerMP player = (EntityPlayerMP) sender;
                 Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
                 if (team == null) {
-                    sender.addChatMessage(new ChatComponentText("You are not in a team."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
                     return;
                 }
                 String title = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
@@ -144,18 +144,20 @@ public class ForemanCommand extends CommandBase {
                 ForemanNetwork
                     .sendToTeamMembers(team.getMembers(), new SyncAllTasksPacket(data.getTeamTasks(team.getTeamId())));
                 sender.addChatMessage(
-                    new ChatComponentText(
-                        "Created task [" + task.id.toString()
-                            .substring(0, 8) + "] " + title));
+                    new ChatComponentTranslation(
+                        "foreman.cmd.created",
+                        task.id.toString()
+                            .substring(0, 8),
+                        title));
                 break;
             }
             case "assign": {
                 if (args.length < 3) {
-                    sender.addChatMessage(new ChatComponentText("Usage: /foreman assign <id> <player>"));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.assign"));
                     return;
                 }
                 if (!(sender instanceof EntityPlayerMP)) {
-                    sender.addChatMessage(new ChatComponentText("Must be run by a player."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.must_be_player"));
                     return;
                 }
                 Task task = findTaskByShortId(data, sender, args[1]);
@@ -169,18 +171,18 @@ public class ForemanCommand extends CommandBase {
                     ForemanNetwork.sendToTeamMembers(
                         senderTeam.getMembers(),
                         new SyncAllTasksPacket(data.getTeamTasks(senderTeam.getTeamId())));
-                    sender.addChatMessage(new ChatComponentText("Assigned " + args[2] + " to " + task.title));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.assigned_to", args[2], task.title));
                     target.addChatMessage(new ChatComponentTranslation("foreman.chat.assigned", task.title));
                 }
                 break;
             }
             case "unassign": {
                 if (args.length < 3) {
-                    sender.addChatMessage(new ChatComponentText("Usage: /foreman unassign <id> <player>"));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.unassign"));
                     return;
                 }
                 if (!(sender instanceof EntityPlayerMP)) {
-                    sender.addChatMessage(new ChatComponentText("Must be run by a player."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.must_be_player"));
                     return;
                 }
                 Task task = findTaskByShortId(data, sender, args[1]);
@@ -193,12 +195,12 @@ public class ForemanCommand extends CommandBase {
                 ForemanNetwork.sendToTeamMembers(
                     senderTeam.getMembers(),
                     new SyncAllTasksPacket(data.getTeamTasks(senderTeam.getTeamId())));
-                sender.addChatMessage(new ChatComponentText("Unassigned " + args[2] + " from " + task.title));
+                sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.unassigned_from", args[2], task.title));
                 break;
             }
             case "done": {
                 if (args.length < 2) {
-                    sender.addChatMessage(new ChatComponentText("Usage: /foreman done <id>"));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.done"));
                     return;
                 }
                 Task task = findTaskByShortId(data, sender, args[1]);
@@ -213,13 +215,13 @@ public class ForemanCommand extends CommandBase {
                             new SyncAllTasksPacket(data.getTeamTasks(team.getTeamId())));
                     }
                 }
-                sender.addChatMessage(new ChatComponentText("Marked done: " + task.title));
+                sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.marked_done", task.title));
                 break;
             }
             case "export": {
                 Collection<Task> tasks = getSenderTasks(sender, data);
                 if (tasks == null) {
-                    sender.addChatMessage(new ChatComponentText("You are not in a team."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
                     return;
                 }
                 Gson gson = new GsonBuilder().setPrettyPrinting()
@@ -264,25 +266,25 @@ public class ForemanCommand extends CommandBase {
                 try (Writer w = new OutputStreamWriter(new FileOutputStream(out), StandardCharsets.UTF_8)) {
                     gson.toJson(arr, w);
                     sender.addChatMessage(
-                        new ChatComponentText("Exported " + tasks.size() + " tasks to " + out.getName()));
+                        new ChatComponentTranslation("foreman.cmd.exported", tasks.size(), out.getName()));
                 } catch (IOException e) {
-                    sender.addChatMessage(new ChatComponentText("Export failed: " + e.getMessage()));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.export_failed", e.getMessage()));
                 }
                 break;
             }
             case "import": {
                 if (args.length < 2) {
-                    sender.addChatMessage(new ChatComponentText("Usage: /foreman import <filename>"));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.import"));
                     return;
                 }
                 if (!(sender instanceof EntityPlayerMP)) {
-                    sender.addChatMessage(new ChatComponentText("Must be run by a player."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.must_be_player"));
                     return;
                 }
                 EntityPlayerMP player = (EntityPlayerMP) sender;
                 Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
                 if (team == null) {
-                    sender.addChatMessage(new ChatComponentText("You are not in a team."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
                     return;
                 }
                 File dir = new File(
@@ -293,7 +295,7 @@ public class ForemanCommand extends CommandBase {
                     "foreman");
                 File in = new File(dir, args[1] + ".json");
                 if (!in.exists()) {
-                    sender.addChatMessage(new ChatComponentText("File not found: " + in.getName()));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.file_not_found", in.getName()));
                     return;
                 }
                 try (Reader r = new InputStreamReader(new FileInputStream(in), StandardCharsets.UTF_8)) {
@@ -346,9 +348,9 @@ public class ForemanCommand extends CommandBase {
                     ForemanNetwork.sendToTeamMembers(
                         team.getMembers(),
                         new SyncAllTasksPacket(data.getTeamTasks(team.getTeamId())));
-                    sender.addChatMessage(new ChatComponentText("Imported " + count + " tasks."));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.imported", count));
                 } catch (Exception e) {
-                    sender.addChatMessage(new ChatComponentText("Import failed: " + e.getMessage()));
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.import_failed", e.getMessage()));
                 }
                 break;
             }
@@ -378,14 +380,14 @@ public class ForemanCommand extends CommandBase {
     private Task findTaskByShortId(ForemanWorldData data, ICommandSender sender, String shortId) {
         Collection<Task> all = getSenderTasks(sender, data);
         if (all == null) {
-            sender.addChatMessage(new ChatComponentText("You are not in a team."));
+            sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
             return null;
         }
         for (Task t : all) {
             if (t.id.toString()
                 .startsWith(shortId)) return t;
         }
-        sender.addChatMessage(new ChatComponentText("Task not found: " + shortId));
+        sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.task_not_found", shortId));
         return null;
     }
 }
