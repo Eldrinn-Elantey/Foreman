@@ -2,6 +2,8 @@ package com.eldrinn.foreman.gui.widget;
 
 import java.util.Collection;
 
+import net.minecraft.util.StatCollector;
+
 import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.BoolValue;
@@ -36,24 +38,25 @@ public class TaskListWidget extends Flow {
 
         // Tabs — each tab takes exactly 1/3 of the available width
         final int TAB_W = W / 3;
+        Collection<Task> allTasks = ForemanClientCache.getAll();
         child(
             Flow.row()
                 .size(W, 24)
                 .child(
                     tabButton(
-                        net.minecraft.util.StatCollector.translateToLocal("foreman.gui.tab.open"),
+                        tabLabel("foreman.gui.tab.open", TaskStatus.OPEN, allTasks),
                         TaskStatus.OPEN,
                         data,
                         TAB_W))
                 .child(
                     tabButton(
-                        net.minecraft.util.StatCollector.translateToLocal("foreman.gui.tab.in_progress"),
+                        tabLabel("foreman.gui.tab.in_progress", TaskStatus.IN_PROGRESS, allTasks),
                         TaskStatus.IN_PROGRESS,
                         data,
                         TAB_W))
                 .child(
                     tabButton(
-                        net.minecraft.util.StatCollector.translateToLocal("foreman.gui.tab.done"),
+                        tabLabel("foreman.gui.tab.done", TaskStatus.DONE, allTasks),
                         TaskStatus.DONE,
                         data,
                         W - TAB_W * 2)));
@@ -61,10 +64,12 @@ public class TaskListWidget extends Flow {
         // Search: icon button toggles field; live search on keystroke
         final int SEARCH_BTN_W = 20;
         Flow searchRow = Flow.row()
-            .size(W, 20);
+            .size(W, 20)
+            .marginTop(P);
         searchRow.child(
             new ButtonWidget<>().size(SEARCH_BTN_W, 20)
                 .overlay(GuiTextures.SEARCH)
+                .addTooltipLine(StatCollector.translateToLocal("foreman.gui.search.tooltip"))
                 .onMousePressed(btn -> {
                     if (btn != 0) return false;
                     data.searchExpanded = !data.searchExpanded;
@@ -91,10 +96,10 @@ public class TaskListWidget extends Flow {
         @SuppressWarnings("rawtypes")
         ListWidget list = new ListWidget();
         list.scrollDirection(new VerticalScrollData(false, TaskRowWidget.SCROLLBAR_W));
-        list.size(W, H - 24 - 20 - 28);
-        Collection<Task> all = ForemanClientCache.getAll();
+        list.size(W, H - 24 - P - 20 - P - 28);
+        list.marginTop(P);
         String query = data.searchQuery.toLowerCase();
-        for (Task task : all) {
+        for (Task task : allTasks) {
             if (task.status != data.activeTab) continue;
             if (!query.isEmpty() && !task.title.toLowerCase()
                 .contains(query)
@@ -129,6 +134,7 @@ public class TaskListWidget extends Flow {
                 .child(
                     new ButtonWidget<>().size(ICON_BTN_W, ICON_BTN_W)
                         .overlay(GuiTextures.GEAR)
+                        .addTooltipLine(StatCollector.translateToLocal("foreman.gui.hud_settings.tooltip"))
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             net.minecraft.client.Minecraft.getMinecraft()
@@ -138,12 +144,20 @@ public class TaskListWidget extends Flow {
                 .child(
                     new ButtonWidget<>().size(ICON_BTN_W, ICON_BTN_W)
                         .overlay(GuiTextures.VISIBLE)
+                        .addTooltipLine(StatCollector.translateToLocal("foreman.gui.theme_toggle.tooltip"))
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
                             ForemanGui.toggleTheme();
                             ForemanGui.open(data);
                             return true;
                         })));
+    }
+
+    private static String tabLabel(String key, TaskStatus status, Collection<Task> tasks) {
+        long count = tasks.stream()
+            .filter(t -> t.status == status)
+            .count();
+        return StatCollector.translateToLocal(key) + " (" + count + ")";
     }
 
     private static ToggleButton tabButton(String label, TaskStatus status, ForemanGuiData data, int width) {
