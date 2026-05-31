@@ -37,7 +37,6 @@ public class AssigneePickerWidget extends Flow {
             TextWidget label = new TextWidget((assigned ? "[x] " : "[ ] ") + p.name);
             label.size(W, 20);
             label.alignment(Alignment.CenterLeft);
-            label.padding(6, 0, 0, 0);
             child(
                 new ButtonWidget<>().size(W, 20)
                     .child(label)

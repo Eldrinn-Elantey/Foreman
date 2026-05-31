@@ -50,12 +50,9 @@ public class TaskRowWidget extends Flow {
         TextWidget normalLabel = new TextWidget(buildLabel(task));
         normalLabel.size(LABEL_W, 20);
         normalLabel.alignment(Alignment.CenterLeft);
-        normalLabel.padding(4, 0, 0, 0);
-
         TextWidget activeLabel = new TextWidget(buildLabel(task));
         activeLabel.size(LABEL_W, 20);
         activeLabel.alignment(Alignment.CenterLeft);
-        activeLabel.padding(4, 0, 0, 0);
 
         ToggleButton selectBtn = new ToggleButton();
         selectBtn.size(LABEL_W, 20);

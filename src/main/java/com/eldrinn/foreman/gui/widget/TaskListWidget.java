@@ -56,7 +56,7 @@ public class TaskListWidget extends Flow {
                         net.minecraft.util.StatCollector.translateToLocal("foreman.gui.tab.done"),
                         TaskStatus.DONE,
                         data,
-                        TAB_W)));
+                        W - TAB_W * 2)));
 
         // Search: icon button toggles field; live search on keystroke
         final int SEARCH_BTN_W = 20;
@@ -107,18 +107,18 @@ public class TaskListWidget extends Flow {
 
         // Bottom bar: New Task + HUD settings + theme toggle
         final int ICON_BTN_W = 20;
-        final int NEW_TASK_W = W - ICON_BTN_W * 2 - 4;
+        final int NEW_TASK_W = W - ICON_BTN_W * 2;
 
         TextWidget newTaskLabel = new TextWidget(
             net.minecraft.util.StatCollector.translateToLocal("foreman.gui.new_task"));
-        newTaskLabel.size(NEW_TASK_W, 24);
+        newTaskLabel.size(NEW_TASK_W, 20);
         newTaskLabel.alignment(Alignment.Center);
 
         child(
             Flow.row()
-                .size(W, 24)
+                .size(W, 20)
                 .child(
-                    new ButtonWidget<>().size(NEW_TASK_W, 24)
+                    new ButtonWidget<>().size(NEW_TASK_W, 20)
                         .child(newTaskLabel)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
@@ -127,7 +127,7 @@ public class TaskListWidget extends Flow {
                             return true;
                         }))
                 .child(
-                    new ButtonWidget<>().size(ICON_BTN_W, 24)
+                    new ButtonWidget<>().size(ICON_BTN_W, ICON_BTN_W)
                         .overlay(GuiTextures.GEAR)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
@@ -136,7 +136,7 @@ public class TaskListWidget extends Flow {
                             return true;
                         }))
                 .child(
-                    new ButtonWidget<>().size(ICON_BTN_W, 24)
+                    new ButtonWidget<>().size(ICON_BTN_W, ICON_BTN_W)
                         .overlay(GuiTextures.VISIBLE)
                         .onMousePressed(btn -> {
                             if (btn != 0) return false;
@@ -148,14 +148,14 @@ public class TaskListWidget extends Flow {
 
     private static ToggleButton tabButton(String label, TaskStatus status, ForemanGuiData data, int width) {
         TextWidget normalLabel = new TextWidget(label);
-        normalLabel.size(width, 22);
+        normalLabel.size(width, 24);
         normalLabel.alignment(Alignment.Center);
 
         TextWidget activeLabel = new TextWidget(label);
-        activeLabel.size(width, 22);
+        activeLabel.size(width, 24);
         activeLabel.alignment(Alignment.Center);
 
-        return new ToggleButton().size(width, 22)
+        return new ToggleButton().size(width, 24)
             .value(new BoolValue.Dynamic(() -> data.activeTab == status, selected -> {
                 if (selected) {
                     data.activeTab = status;
