@@ -32,8 +32,9 @@ public class AssigneePickerWidget extends Flow {
         size(W, 20);
         coverChildrenHeight(20);
         final int HEAD_SIZE = 8;
-        final int HEAD_MARGIN = 4;
-        final int CHECK_W = net.minecraft.client.Minecraft.getMinecraft().fontRenderer.getStringWidth("[x]") + 4;
+        final int GAP = 4;
+        final int CHECK_W = net.minecraft.client.Minecraft.getMinecraft().fontRenderer.getStringWidth("[x]");
+        final int NAME_W = W - GAP - CHECK_W - GAP - HEAD_SIZE - GAP;
 
         for (PlayerEntry player : resolveAvailablePlayers()) {
             boolean assigned = task.assignees.contains(player.id);
@@ -42,16 +43,17 @@ public class AssigneePickerWidget extends Flow {
             TextWidget checkMark = new TextWidget(assigned ? "[x]" : "[ ]");
             checkMark.size(CHECK_W, 20);
             checkMark.alignment(Alignment.CenterLeft);
+            checkMark.marginLeft(GAP);
 
             PlayerHeadWidget head = new PlayerHeadWidget(p.name);
             head.size(HEAD_SIZE, HEAD_SIZE)
                 .marginTop(6)
-                .marginLeft(HEAD_MARGIN);
+                .marginLeft(GAP);
 
             TextWidget nameLabel = new TextWidget(p.name);
-            nameLabel.size(W - CHECK_W - HEAD_MARGIN - HEAD_SIZE - 4, 20);
+            nameLabel.size(NAME_W, 20);
             nameLabel.alignment(Alignment.CenterLeft);
-            nameLabel.marginLeft(4);
+            nameLabel.marginLeft(GAP);
 
             Flow row = Flow.row()
                 .size(W, 20);
