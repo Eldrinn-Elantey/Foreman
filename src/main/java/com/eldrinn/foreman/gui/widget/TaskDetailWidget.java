@@ -275,7 +275,6 @@ public class TaskDetailWidget extends Flow {
         PlainTextField xField = new PlainTextField();
         xField.size(FIELD_W, EL_H);
         xField.setTextColor(0xFFFFFF);
-        xField.padding(2, 0, 0, 0);
         xField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.x : 0), val -> {
             ensureLocation();
             try {
@@ -296,7 +295,6 @@ public class TaskDetailWidget extends Flow {
         PlainTextField yField = new PlainTextField();
         yField.size(FIELD_W, EL_H);
         yField.setTextColor(0xFFFFFF);
-        yField.padding(2, 0, 0, 0);
         yField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.y : 0), val -> {
             ensureLocation();
             try {
@@ -317,7 +315,6 @@ public class TaskDetailWidget extends Flow {
         PlainTextField zField = new PlainTextField();
         zField.size(FIELD_W, EL_H);
         zField.setTextColor(0xFFFFFF);
-        zField.padding(2, 0, 0, 0);
         zField.value(new StringValue.Dynamic(() -> String.valueOf(task.location != null ? task.location.z : 0), val -> {
             ensureLocation();
             try {
@@ -363,7 +360,6 @@ public class TaskDetailWidget extends Flow {
             TextWidget subtaskTitle = new TextWidget(s.title);
             subtaskTitle.size(W - EL_H * 2, EL_H);
             subtaskTitle.alignment(Alignment.CenterLeft);
-            subtaskTitle.padding(4, 0, 0, 0);
             ButtonWidget<?> checkBtn = new ButtonWidget<>();
             checkBtn.size(EL_H, EL_H);
             if (s.checked) checkBtn.overlay(GuiTextures.CHECKMARK);

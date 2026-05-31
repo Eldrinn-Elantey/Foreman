@@ -24,7 +24,6 @@ import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.data.Task;
-import com.eldrinn.foreman.data.TaskStatus;
 import com.eldrinn.foreman.gui.ForemanGui;
 import com.eldrinn.foreman.gui.ForemanGuiData;
 
@@ -39,34 +38,22 @@ public class TaskRowWidget extends Flow {
     private static final int ROW_WIDTH = LEFT_WIDTH - 2 * ForemanGui.PADDING - SCROLLBAR_W;
     private static final int ICON_W = 20;
     private static final int PIN_BTN_W = 20;
-    private static final int LABEL_W = ROW_WIDTH - ICON_W - PIN_BTN_W - 2;
+    private static final int SELECT_BTN_W = ROW_WIDTH - PIN_BTN_W;
 
     public TaskRowWidget(Task task, ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.X);
         size(ROW_WIDTH, 20);
 
-        child(new TaskIconWidget(task.iconItem, task.status).size(ICON_W, 20));
-
-        TextWidget normalLabel = new TextWidget(buildLabel(task));
-        normalLabel.size(LABEL_W, 20);
-        normalLabel.alignment(Alignment.CenterLeft);
-        normalLabel.padding(4, 0, 0, 0);
-
-        TextWidget activeLabel = new TextWidget(buildLabel(task));
-        activeLabel.size(LABEL_W, 20);
-        activeLabel.alignment(Alignment.CenterLeft);
-        activeLabel.padding(4, 0, 0, 0);
-
         ToggleButton selectBtn = new ToggleButton();
-        selectBtn.size(LABEL_W, 20);
+        selectBtn.size(SELECT_BTN_W, 20);
         selectBtn.value(new BoolValue.Dynamic(() -> task.id.equals(data.selectedTaskId), selected -> {
             if (selected) {
                 data.selectTask(task.id);
                 ForemanGui.open(data);
             }
         }));
-        selectBtn.child(false, normalLabel);
-        selectBtn.child(true, activeLabel);
+        selectBtn.child(false, buildRowContent(task, SELECT_BTN_W));
+        selectBtn.child(true, buildRowContent(task, SELECT_BTN_W));
 
         boolean pinned = ForemanClientCache.isPinned(task.id);
         boolean canPin = ForemanClientCache.canPin();
@@ -96,33 +83,86 @@ public class TaskRowWidget extends Flow {
         child(pinBtn);
     }
 
-    private static String buildLabel(Task task) {
-        return truncate(task.title, 28) + "  " + buildAssigneeText(task);
-    }
+    private static final int TEXT_PAD = 4;
+    private static final int HEAD_SIZE = 8;
+    private static final int HEAD_GAP = 2;
 
-    private static String buildAssigneeText(Task task) {
-        if (task.assignees.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
+    private static Flow buildRowContent(Task task, int width) {
+        ItemStack stack = IconSlotWidget.parseIconItem(task.iconItem);
+        Flow row = Flow.row()
+            .size(width, 20);
+        int used = 0;
+
+        if (stack != null) {
+            row.child(new InlineIconWidget(stack).size(ICON_W, 20));
+            used += ICON_W;
+        }
+
+        String title = truncate(task.title, 22);
+        int leftPad = stack == null ? TEXT_PAD : 0;
+        int assigneeW = assigneeBlockWidth(task);
+        int maxTitleW = width - used - leftPad - assigneeW;
+        int titlePixelW = Minecraft.getMinecraft().fontRenderer.getStringWidth(title) + 4;
+        TextWidget titleLabel = new TextWidget(title);
+        titleLabel.alignment(Alignment.CenterLeft);
+        titleLabel.marginLeft(leftPad);
+        titleLabel.size(Math.min(titlePixelW, maxTitleW), 20);
+        row.child(titleLabel);
+
+        // assignee heads + names
         int shown = 0;
         for (UUID uuid : task.assignees) {
             if (shown >= 2) {
-                sb.append(
-                    String.format(
-                        net.minecraft.util.StatCollector.translateToLocal("foreman.gui.row.more"),
-                        task.assignees.size() - 2));
+                String more = String.format(
+                    net.minecraft.util.StatCollector.translateToLocal("foreman.gui.row.more"),
+                    task.assignees.size() - 2);
+                TextWidget moreLabel = new TextWidget(more);
+                moreLabel.size(30, 20);
+                moreLabel.alignment(Alignment.CenterLeft);
+                row.child(moreLabel);
                 break;
             }
             String name = resolveName(uuid);
-            if (sb.length() > 0) sb.append(" ");
-            sb.append("[")
-                .append(name)
-                .append("]");
+            if (name != null) {
+                row.child(
+                    new PlayerHeadWidget(name).size(HEAD_SIZE, HEAD_SIZE)
+                        .marginTop(6)
+                        .marginLeft(HEAD_GAP));
+                TextWidget nameLabel = new TextWidget("[" + name + "]");
+                nameLabel.size(nameTextWidth(name), 20);
+                nameLabel.alignment(Alignment.CenterLeft);
+                nameLabel.marginLeft(HEAD_GAP);
+                row.child(nameLabel);
+            }
             shown++;
         }
-        return sb.toString();
+
+        return row;
     }
 
-    private static String resolveName(UUID uuid) {
+    private static int assigneeBlockWidth(Task task) {
+        if (task.assignees.isEmpty()) return 0;
+        int w = 0;
+        int shown = 0;
+        for (UUID uuid : task.assignees) {
+            if (shown >= 2) {
+                w += 30;
+                break;
+            }
+            String name = resolveName(uuid);
+            if (name != null) {
+                w += HEAD_GAP + HEAD_SIZE + nameTextWidth(name);
+            }
+            shown++;
+        }
+        return w;
+    }
+
+    private static int nameTextWidth(String name) {
+        return Minecraft.getMinecraft().fontRenderer.getStringWidth("[" + name + "]") + 2;
+    }
+
+    private static @Nullable String resolveName(UUID uuid) {
         NetHandlerPlayClient netHandler = Minecraft.getMinecraft().thePlayer.sendQueue;
         for (GuiPlayerInfo info : netHandler.playerInfoList) {
             net.minecraft.entity.player.EntityPlayer player = Minecraft.getMinecraft().theWorld
@@ -132,8 +172,7 @@ public class TaskRowWidget extends Flow {
                     .getId()))
                 return info.name;
         }
-        return uuid.toString()
-            .substring(0, 8);
+        return null;
     }
 
     private static String truncate(String s, int max) {
@@ -141,35 +180,29 @@ public class TaskRowWidget extends Flow {
     }
 
     @SideOnly(Side.CLIENT)
-    private static class TaskIconWidget extends Widget<TaskIconWidget> {
+    private static class InlineIconWidget extends Widget<InlineIconWidget> {
 
-        private final @Nullable String iconItem;
-        private final TaskStatus status;
+        private final ItemStack stack;
 
-        TaskIconWidget(@Nullable String iconItem, TaskStatus status) {
-            this.iconItem = iconItem;
-            this.status = status;
+        InlineIconWidget(ItemStack stack) {
+            this.stack = stack;
         }
 
         @Override
         protected WidgetThemeEntry<?> getWidgetThemeInternal(ITheme theme) {
-            return theme.getPanelTheme();
+            return theme.getFallback();
         }
 
         @Override
         public void draw(ModularGuiContext context, WidgetThemeEntry<?> widgetTheme) {
-            ItemStack stack = IconSlotWidget.parseIconItem(iconItem);
-            if (stack != null) {
-                int pad = 2;
-                GuiDraw.drawItem(
-                    stack,
-                    pad,
-                    pad,
-                    getArea().width - 2 * pad,
-                    getArea().height - 2 * pad,
-                    context.getCurrentDrawingZ());
-            }
-            // no icon item — draw nothing
+            int pad = 2;
+            GuiDraw.drawItem(
+                stack,
+                pad,
+                pad,
+                getArea().width - 2 * pad,
+                getArea().height - 2 * pad,
+                context.getCurrentDrawingZ());
         }
     }
 }
