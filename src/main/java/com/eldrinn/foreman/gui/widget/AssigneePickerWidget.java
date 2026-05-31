@@ -31,15 +31,37 @@ public class AssigneePickerWidget extends Flow {
         final int W = width;
         size(W, 20);
         coverChildrenHeight(20);
+        final int HEAD_SIZE = 8;
+        final int HEAD_MARGIN = 4;
+        final int CHECK_W = net.minecraft.client.Minecraft.getMinecraft().fontRenderer.getStringWidth("[x]") + 4;
+
         for (PlayerEntry player : resolveAvailablePlayers()) {
             boolean assigned = task.assignees.contains(player.id);
             PlayerEntry p = player;
-            TextWidget label = new TextWidget((assigned ? "[x] " : "[ ] ") + p.name);
-            label.size(W, 20);
-            label.alignment(Alignment.CenterLeft);
+
+            TextWidget checkMark = new TextWidget(assigned ? "[x]" : "[ ]");
+            checkMark.size(CHECK_W, 20);
+            checkMark.alignment(Alignment.CenterLeft);
+
+            PlayerHeadWidget head = new PlayerHeadWidget(p.name);
+            head.size(HEAD_SIZE, HEAD_SIZE)
+                .marginTop(6)
+                .marginLeft(HEAD_MARGIN);
+
+            TextWidget nameLabel = new TextWidget(p.name);
+            nameLabel.size(W - CHECK_W - HEAD_MARGIN - HEAD_SIZE - 4, 20);
+            nameLabel.alignment(Alignment.CenterLeft);
+            nameLabel.marginLeft(4);
+
+            Flow row = Flow.row()
+                .size(W, 20);
+            row.child(checkMark);
+            row.child(head);
+            row.child(nameLabel);
+
             child(
                 new ButtonWidget<>().size(W, 20)
-                    .child(label)
+                    .child(row)
                     .onMousePressed(btn -> {
                         if (btn != 0) return false;
                         if (task.assignees.contains(p.id)) {
