@@ -7,9 +7,9 @@ import net.minecraft.network.PacketBuffer;
 
 public class Comment {
 
-    public String author; // player name at time of writing (display only)
-    public long timestamp;
-    public String text;
+    public final String author; // player name at time of writing (display only)
+    public final long timestamp;
+    public final String text;
 
     public Comment(String author, long timestamp, String text) {
         this.author = author;
