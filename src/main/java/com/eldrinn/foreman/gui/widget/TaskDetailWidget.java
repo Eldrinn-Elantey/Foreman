@@ -360,6 +360,7 @@ public class TaskDetailWidget extends Flow {
             TextWidget subtaskTitle = new TextWidget(s.title);
             subtaskTitle.size(W - EL_H * 2, EL_H);
             subtaskTitle.alignment(Alignment.CenterLeft);
+            subtaskTitle.marginLeft(4);
             ButtonWidget<?> checkBtn = new ButtonWidget<>();
             checkBtn.size(EL_H, EL_H);
             if (s.checked) checkBtn.overlay(GuiTextures.CHECKMARK);
