@@ -2,14 +2,7 @@ package com.eldrinn.foreman.cache;
 
 import java.util.UUID;
 
-public class PlayerEntry {
+import com.github.bsideup.jabel.Desugar;
 
-    public final UUID id;
-    public final String name;
-
-    public PlayerEntry(UUID id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-}
+@Desugar
+public record PlayerEntry(UUID id, String name) {}

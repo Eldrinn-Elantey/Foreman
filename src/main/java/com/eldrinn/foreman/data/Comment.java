@@ -5,17 +5,10 @@ import java.io.IOException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 
-public class Comment {
+import com.github.bsideup.jabel.Desugar;
 
-    public final String author; // player name at time of writing (display only)
-    public final long timestamp;
-    public final String text;
-
-    public Comment(String author, long timestamp, String text) {
-        this.author = author;
-        this.timestamp = timestamp;
-        this.text = text;
-    }
+@Desugar
+public record Comment(String author, long timestamp, String text) {
 
     public NBTTagCompound toNBT() {
         NBTTagCompound tag = new NBTTagCompound();

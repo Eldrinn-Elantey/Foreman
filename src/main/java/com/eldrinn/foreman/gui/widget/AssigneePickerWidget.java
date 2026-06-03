@@ -36,19 +36,19 @@ public class AssigneePickerWidget extends Flow {
         final int NAME_W = width - GAP - CHECK_W - GAP - HEAD_SIZE - GAP;
 
         for (PlayerEntry player : resolveAvailablePlayers()) {
-            boolean assigned = task.assignees.contains(player.id);
+            boolean assigned = task.assignees.contains(player.id());
 
-            TextWidget checkMark = new TextWidget<>(assigned ? "[x]" : "[ ]");
+            var checkMark = new TextWidget<>(assigned ? "[x]" : "[ ]");
             checkMark.size(CHECK_W, 20);
             checkMark.textAlign(Alignment.CenterLeft);
             checkMark.marginLeft(GAP);
 
-            PlayerHeadWidget head = new PlayerHeadWidget(player.name);
+            PlayerHeadWidget head = new PlayerHeadWidget(player.name());
             head.size(HEAD_SIZE, HEAD_SIZE)
                 .marginTop(6)
                 .marginLeft(GAP);
 
-            TextWidget nameLabel = new TextWidget<>(player.name);
+            var nameLabel = new TextWidget<>(player.name());
             nameLabel.size(NAME_W, 20);
             nameLabel.textAlign(Alignment.CenterLeft);
             nameLabel.marginLeft(GAP);
@@ -64,10 +64,10 @@ public class AssigneePickerWidget extends Flow {
                     .child(row)
                     .onMousePressed(btn -> {
                         if (btn != 0) return false;
-                        if (task.assignees.contains(player.id)) {
-                            task.assignees.remove(player.id);
+                        if (task.assignees.contains(player.id())) {
+                            task.assignees.remove(player.id());
                         } else {
-                            task.assignees.add(player.id);
+                            task.assignees.add(player.id());
                         }
                         ForemanNetwork.CHANNEL.sendToServer(new UpdateTaskPacket(task));
                         ForemanGui.open(data);

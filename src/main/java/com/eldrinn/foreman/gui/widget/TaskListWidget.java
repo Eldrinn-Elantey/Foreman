@@ -26,6 +26,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class TaskListWidget extends Flow {
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public TaskListWidget(ForemanGuiData data) {
         super(com.cleanroommc.modularui.api.GuiAxis.Y);
         final int HEIGHT = ForemanGui.getHeight();
@@ -93,7 +94,6 @@ public class TaskListWidget extends Flow {
         child(searchRow);
 
         // Task list filtered by active tab and search query
-        @SuppressWarnings({ "rawtypes", "unchecked" })
         ListWidget list = new ListWidget();
         list.scrollDirection(new VerticalScrollData(false, TaskRowWidget.SCROLLBAR_W));
         list.size(W, H - 24 - P - 20 - P - 28);
