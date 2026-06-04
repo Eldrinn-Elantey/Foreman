@@ -30,7 +30,7 @@ public class HudRenderer {
 
     private static final RenderItem RENDER_ITEM = new RenderItem();
 
-    private static final int MAX_SUBTASKS_SHOWN = 3;
+    private static final int MAX_BLOCK_WIDTH = 160;
     private static final int LINE_H = 10;
     private static final int ICON_SIZE = 10; // item icon scaled to match line height
     private static final int ICON_GAP = 2;
@@ -51,8 +51,10 @@ public class HudRenderer {
         PinnedTasksConfig cfg = ForemanClientCache.getPinConfig();
         if (!cfg.isHudVisible()) return;
 
-        List<Task> pinned = ForemanClientCache.getPinnedTasks();
-        if (pinned.isEmpty()) return;
+        List<Task> all = ForemanClientCache.getPinnedTasks();
+        if (all.isEmpty()) return;
+        int maxTasks = cfg.getMaxPinnedTasks();
+        List<Task> pinned = all.size() > maxTasks ? all.subList(0, maxTasks) : all;
 
         ScaledResolution res = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         int sw = res.getScaledWidth();
@@ -80,7 +82,7 @@ public class HudRenderer {
 
         int y = sy;
         for (Task task : pinned) {
-            y = drawTaskBlock(mc.fontRenderer, task, sx, y);
+            y = drawTaskBlock(mc.fontRenderer, cfg, task, sx, y, blockW);
             y += BLOCK_GAP;
         }
 
@@ -93,14 +95,17 @@ public class HudRenderer {
      * Used by HudSettingsScreen to position the drag handle.
      */
     public static int[] computeHudPosition(PinnedTasksConfig cfg, int sw, int sh, FontRenderer fr, List<Task> pinned) {
-        int blockW = maxBlockWidth(pinned, fr);
-        int totalH = totalHeight(pinned);
+        int blockW = maxBlockWidth(pinned, fr, cfg);
+        int totalH = totalHeight(pinned, cfg, fr);
         int x = anchorX(cfg.getAnchor(), sw, blockW) + cfg.getOffsetX();
         int y = anchorY(cfg.getAnchor(), sh, totalH) + cfg.getOffsetY();
         return new int[] { x, y, blockW, totalH };
     }
 
-    private int drawTaskBlock(FontRenderer fr, Task task, int x, int y) {
+    @SuppressWarnings("unchecked")
+    private int drawTaskBlock(FontRenderer fr, PinnedTasksConfig cfg, Task task, int x, int y, int blockW) {
+        int maxSubtasks = cfg.getMaxSubtasksShown();
+        int textW = blockW - PADDING * 2;
         String statusText = "[" + task.status.displayName()
             .toUpperCase() + "]";
         fr.drawStringWithShadow(statusText, x, y, statusColor(task.status));
@@ -109,22 +114,51 @@ public class HudRenderer {
         ItemStack iconStack = IconSlotWidget.parseIconItem(task.iconItem);
         if (iconStack != null) {
             drawItemIcon(iconStack, x, y);
-            fr.drawStringWithShadow(task.title, x + ICON_SIZE + ICON_GAP, y, COLOR_WHITE);
+            for (String line : (List<String>) fr.listFormattedStringToWidth(task.title, textW - ICON_SIZE - ICON_GAP)) {
+                fr.drawStringWithShadow(line, x + ICON_SIZE + ICON_GAP, y, COLOR_WHITE);
+                y += LINE_H;
+            }
         } else {
-            fr.drawStringWithShadow(task.title, x, y, COLOR_WHITE);
+            for (String line : (List<String>) fr.listFormattedStringToWidth(task.title, textW)) {
+                fr.drawStringWithShadow(line, x, y, COLOR_WHITE);
+                y += LINE_H;
+            }
         }
-        y += LINE_H;
 
         if (!task.subtasks.isEmpty()) {
+            List<Subtask> incomplete = task.subtasks.stream()
+                .filter(st -> !st.checked)
+                .collect(java.util.stream.Collectors.toList());
+            List<Subtask> complete = task.subtasks.stream()
+                .filter(st -> st.checked)
+                .collect(java.util.stream.Collectors.toList());
+
+            int prefixW = fr.getStringWidth("- ");
+            int subtaskW = textW - PADDING - prefixW;
             int shown = 0;
-            for (Subtask st : task.subtasks) {
-                if (shown >= MAX_SUBTASKS_SHOWN) break;
-                int color = st.checked ? COLOR_GRAY : COLOR_WHITE;
-                String label = st.checked ? "§m- " + st.title + "§r" : "- " + st.title;
-                fr.drawStringWithShadow(label, x + PADDING, y, color);
+            for (Subtask st : incomplete) {
+                if (shown >= maxSubtasks) break;
+                List<String> lines = (List<String>) fr.listFormattedStringToWidth(st.title, subtaskW);
+                fr.drawStringWithShadow("- " + lines.get(0), x + PADDING, y, COLOR_WHITE);
                 y += LINE_H;
+                for (int i = 1; i < lines.size(); i++) {
+                    fr.drawStringWithShadow("  " + lines.get(i), x + PADDING, y, COLOR_WHITE);
+                    y += LINE_H;
+                }
                 shown++;
             }
+            for (Subtask st : complete) {
+                if (shown >= maxSubtasks) break;
+                List<String> lines = (List<String>) fr.listFormattedStringToWidth(st.title, subtaskW);
+                fr.drawStringWithShadow("§m- " + lines.get(0) + "§r", x + PADDING, y, COLOR_GRAY);
+                y += LINE_H;
+                for (int i = 1; i < lines.size(); i++) {
+                    fr.drawStringWithShadow("§m  " + lines.get(i) + "§r", x + PADDING, y, COLOR_GRAY);
+                    y += LINE_H;
+                }
+                shown++;
+            }
+
             int remaining = task.subtasks.size() - shown;
             if (remaining > 0) {
                 fr.drawStringWithShadow(
@@ -139,19 +173,45 @@ public class HudRenderer {
         return y;
     }
 
-    static int totalHeight(List<Task> pinned) {
+    @SuppressWarnings("unchecked")
+    static int totalHeight(List<Task> pinned, PinnedTasksConfig cfg, FontRenderer fr) {
+        int maxSub = cfg.getMaxSubtasksShown();
+        int blockW = maxBlockWidth(pinned, fr, cfg);
+        int textW = blockW - PADDING * 2;
+        int prefixW = fr.getStringWidth("- ");
+        int subtaskW = textW - PADDING - prefixW;
         int h = 0;
         for (Task t : pinned) {
-            h += LINE_H * 2; // status + title
-            int subtaskLines = Math.min(t.subtasks.size(), MAX_SUBTASKS_SHOWN);
-            h += LINE_H * subtaskLines;
-            if (t.subtasks.size() > MAX_SUBTASKS_SHOWN) h += LINE_H; // "+N more"
+            h += LINE_H; // status
+            int titleW = t.iconItem != null ? textW - ICON_SIZE - ICON_GAP : textW;
+            h += LINE_H * ((List<String>) fr.listFormattedStringToWidth(t.title, titleW)).size();
+
+            List<com.eldrinn.foreman.data.Subtask> incomplete = t.subtasks.stream()
+                .filter(st -> !st.checked)
+                .collect(java.util.stream.Collectors.toList());
+            List<com.eldrinn.foreman.data.Subtask> complete = t.subtasks.stream()
+                .filter(st -> st.checked)
+                .collect(java.util.stream.Collectors.toList());
+
+            int shown = 0;
+            for (com.eldrinn.foreman.data.Subtask st : incomplete) {
+                if (shown >= maxSub) break;
+                h += LINE_H * ((List<String>) fr.listFormattedStringToWidth(st.title, subtaskW)).size();
+                shown++;
+            }
+            for (com.eldrinn.foreman.data.Subtask st : complete) {
+                if (shown >= maxSub) break;
+                h += LINE_H * ((List<String>) fr.listFormattedStringToWidth(st.title, subtaskW)).size();
+                shown++;
+            }
+            if (t.subtasks.size() > shown) h += LINE_H; // "+N more"
             h += BLOCK_GAP;
         }
         return h;
     }
 
-    static int maxBlockWidth(List<Task> pinned, FontRenderer fr) {
+    static int maxBlockWidth(List<Task> pinned, FontRenderer fr, PinnedTasksConfig cfg) {
+        int maxSub = cfg.getMaxSubtasksShown();
         int max = 80;
         for (Task t : pinned) {
             max = Math.max(
@@ -163,12 +223,12 @@ public class HudRenderer {
             max = Math.max(max, titlePrefix + fr.getStringWidth(t.title));
             int shown = 0;
             for (Subtask st : t.subtasks) {
-                if (shown >= MAX_SUBTASKS_SHOWN) break;
+                if (shown >= maxSub) break;
                 max = Math.max(max, PADDING + fr.getStringWidth("- " + st.title));
                 shown++;
             }
         }
-        return max + PADDING * 2;
+        return Math.min(max + PADDING * 2, MAX_BLOCK_WIDTH);
     }
 
     static int anchorX(PinnedTasksConfig.Anchor anchor, int sw, int blockW) {

@@ -67,7 +67,7 @@ public class HudSettingsScreen extends GuiScreen {
     }
 
     private void drawControlPanel(PinnedTasksConfig cfg, int sw, int sh) {
-        int panelW = 300;
+        int panelW = 420;
         int px = (sw - panelW) / 2;
         int py = sh - PANEL_H - PANEL_PADDING;
 
@@ -75,6 +75,7 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
+        // Scale
         String scaleKey = StatCollector.translateToLocal("foreman.hud.settings.scale");
         fontRendererObj.drawStringWithShadow(scaleKey, cx, py + 7, 0xAAAAAA);
         cx += fontRendererObj.getStringWidth(scaleKey) + 4;
@@ -91,6 +92,41 @@ public class HudSettingsScreen extends GuiScreen {
         fontRendererObj.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
         cx += 20;
 
+        // Subtasks
+        String subtasksKey = StatCollector.translateToLocal("foreman.hud.settings.subtasks");
+        fontRendererObj.drawStringWithShadow(subtasksKey, cx, py + 7, 0xAAAAAA);
+        cx += fontRendererObj.getStringWidth(subtasksKey) + 4;
+
+        drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow("-", cx + 4, py + 7, 0xFFFFFF);
+        cx += 16;
+
+        String subtasksLabel = String.valueOf(cfg.getMaxSubtasksShown());
+        fontRendererObj.drawStringWithShadow(subtasksLabel, cx, py + 7, 0xFFFFFF);
+        cx += fontRendererObj.getStringWidth(subtasksLabel) + 4;
+
+        drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
+        cx += 20;
+
+        // Pins
+        String pinsKey = StatCollector.translateToLocal("foreman.hud.settings.tasks");
+        fontRendererObj.drawStringWithShadow(pinsKey, cx, py + 7, 0xAAAAAA);
+        cx += fontRendererObj.getStringWidth(pinsKey) + 4;
+
+        drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow("-", cx + 4, py + 7, 0xFFFFFF);
+        cx += 16;
+
+        String pinsLabel = String.valueOf(cfg.getMaxPinnedTasks());
+        fontRendererObj.drawStringWithShadow(pinsLabel, cx, py + 7, 0xFFFFFF);
+        cx += fontRendererObj.getStringWidth(pinsLabel) + 4;
+
+        drawRect(cx, py + 2, cx + 14, py + 22, 0xFF444444);
+        fontRendererObj.drawStringWithShadow("+", cx + 3, py + 7, 0xFFFFFF);
+        cx += 20;
+
+        // BG toggle
         String bgLabel = StatCollector.translateToLocalFormatted(
             "foreman.hud.settings.bg",
             cfg.isShowBackground() ? StatCollector.translateToLocal("foreman.hud.on")
@@ -100,6 +136,7 @@ public class HudSettingsScreen extends GuiScreen {
         fontRendererObj.drawStringWithShadow(bgLabel, cx + 4, py + 7, bgColor);
         cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
+        // HUD toggle
         String hudLabel = StatCollector.translateToLocalFormatted(
             "foreman.hud.settings.hud",
             cfg.isHudVisible() ? StatCollector.translateToLocal("foreman.hud.on")
@@ -109,6 +146,7 @@ public class HudSettingsScreen extends GuiScreen {
         fontRendererObj.drawStringWithShadow(hudLabel, cx + 4, py + 7, hudColor);
         cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
+        // Reset
         String resetLabel = StatCollector.translateToLocal("foreman.hud.settings.reset");
         drawRect(cx, py + 2, cx + fontRendererObj.getStringWidth(resetLabel) + 8, py + 22, 0xFF884444);
         fontRendererObj.drawStringWithShadow(resetLabel, cx + 4, py + 7, 0xFFFFFF);
@@ -140,7 +178,7 @@ public class HudSettingsScreen extends GuiScreen {
     }
 
     private void handlePanelClick(PinnedTasksConfig cfg, int mouseX, int mouseY, int sw, int sh) {
-        int panelW = 300;
+        int panelW = 420;
         int px = (sw - panelW) / 2;
         int py = sh - PANEL_H - PANEL_PADDING;
 
@@ -148,48 +186,76 @@ public class HudSettingsScreen extends GuiScreen {
 
         int cx = px;
 
+        // Scale
         cx += fontRendererObj.getStringWidth(StatCollector.translateToLocal("foreman.hud.settings.scale")) + 4;
-
         if (mouseX >= cx && mouseX <= cx + 14) {
             cfg.setScale(cfg.getScale() - 0.25);
             return;
         }
         cx += 16;
-
         String scaleLabel = String.format("%.2fx", cfg.getScale());
         cx += fontRendererObj.getStringWidth(scaleLabel) + 4;
-
         if (mouseX >= cx && mouseX <= cx + 14) {
             cfg.setScale(cfg.getScale() + 0.25);
             return;
         }
         cx += 20;
 
+        // Subtasks
+        cx += fontRendererObj.getStringWidth(StatCollector.translateToLocal("foreman.hud.settings.subtasks")) + 4;
+        if (mouseX >= cx && mouseX <= cx + 14) {
+            cfg.setMaxSubtasksShown(cfg.getMaxSubtasksShown() - 1);
+            return;
+        }
+        cx += 16;
+        String subtasksLabel = String.valueOf(cfg.getMaxSubtasksShown());
+        cx += fontRendererObj.getStringWidth(subtasksLabel) + 4;
+        if (mouseX >= cx && mouseX <= cx + 14) {
+            cfg.setMaxSubtasksShown(cfg.getMaxSubtasksShown() + 1);
+            return;
+        }
+        cx += 20;
+
+        // Pins
+        cx += fontRendererObj.getStringWidth(StatCollector.translateToLocal("foreman.hud.settings.tasks")) + 4;
+        if (mouseX >= cx && mouseX <= cx + 14) {
+            cfg.setMaxPinnedTasks(cfg.getMaxPinnedTasks() - 1);
+            return;
+        }
+        cx += 16;
+        String pinsLabel = String.valueOf(cfg.getMaxPinnedTasks());
+        cx += fontRendererObj.getStringWidth(pinsLabel) + 4;
+        if (mouseX >= cx && mouseX <= cx + 14) {
+            cfg.setMaxPinnedTasks(cfg.getMaxPinnedTasks() + 1);
+            return;
+        }
+        cx += 20;
+
+        // BG toggle
         String bgLabel = StatCollector.translateToLocalFormatted(
             "foreman.hud.settings.bg",
             cfg.isShowBackground() ? StatCollector.translateToLocal("foreman.hud.on")
                 : StatCollector.translateToLocal("foreman.hud.off"));
-        int bgW = fontRendererObj.getStringWidth(bgLabel) + 8;
-        if (mouseX >= cx && mouseX <= cx + bgW) {
+        if (mouseX >= cx && mouseX <= cx + fontRendererObj.getStringWidth(bgLabel) + 8) {
             cfg.setShowBackground(!cfg.isShowBackground());
             return;
         }
         cx += fontRendererObj.getStringWidth(bgLabel) + 12;
 
+        // HUD toggle
         String hudLabel = StatCollector.translateToLocalFormatted(
             "foreman.hud.settings.hud",
             cfg.isHudVisible() ? StatCollector.translateToLocal("foreman.hud.on")
                 : StatCollector.translateToLocal("foreman.hud.off"));
-        int hudW = fontRendererObj.getStringWidth(hudLabel) + 8;
-        if (mouseX >= cx && mouseX <= cx + hudW) {
+        if (mouseX >= cx && mouseX <= cx + fontRendererObj.getStringWidth(hudLabel) + 8) {
             cfg.setHudVisible(!cfg.isHudVisible());
             return;
         }
         cx += fontRendererObj.getStringWidth(hudLabel) + 12;
 
+        // Reset
         String resetLabel = StatCollector.translateToLocal("foreman.hud.settings.reset");
-        int resetW = fontRendererObj.getStringWidth(resetLabel) + 8;
-        if (mouseX >= cx && mouseX <= cx + resetW) {
+        if (mouseX >= cx && mouseX <= cx + fontRendererObj.getStringWidth(resetLabel) + 8) {
             cfg.resetToDefaults();
         }
     }
@@ -212,8 +278,9 @@ public class HudSettingsScreen extends GuiScreen {
             int sw = res.getScaledWidth();
             int sh = res.getScaledHeight();
             List<Task> pinned = ForemanClientCache.getPinnedTasks();
-            int blockW = HudRenderer.maxBlockWidth(pinned, fontRendererObj);
-            int totalH = HudRenderer.totalHeight(pinned);
+            PinnedTasksConfig cfg2 = ForemanClientCache.getPinConfig();
+            int blockW = HudRenderer.maxBlockWidth(pinned, fontRendererObj, cfg2);
+            int totalH = HudRenderer.totalHeight(pinned, cfg2, fontRendererObj);
             int[] pos = HudRenderer.computeHudPosition(cfg, sw, sh, fontRendererObj, pinned);
             int hudX = pos[0];
             int hudY = pos[1];
