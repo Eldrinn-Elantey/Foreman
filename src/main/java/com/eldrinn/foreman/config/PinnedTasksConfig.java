@@ -22,7 +22,6 @@ public class PinnedTasksConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .create();
-    private static final int MAX_PINS = 5;
 
     public enum Anchor {
         TOP_LEFT,
@@ -64,6 +63,12 @@ public class PinnedTasksConfig {
 
         @SerializedName("hudVisible")
         boolean hudVisible = true;
+
+        @SerializedName("maxSubtasksShown")
+        int maxSubtasksShown = 3;
+
+        @SerializedName("maxPinnedTasks")
+        int maxPinnedTasks = 5;
     }
 
     private Data data = new Data();
@@ -117,7 +122,7 @@ public class PinnedTasksConfig {
     public void pin(UUID id) {
         String s = id.toString();
         if (data.pinnedTasks.contains(s)) return;
-        if (data.pinnedTasks.size() >= MAX_PINS) return;
+        if (data.pinnedTasks.size() >= data.hud.maxPinnedTasks) return;
         data.pinnedTasks.add(s);
         save();
     }
@@ -203,11 +208,27 @@ public class PinnedTasksConfig {
         data.hud.scale = 1.0;
         data.hud.showBackground = true;
         data.hud.hudVisible = true;
+        data.hud.maxSubtasksShown = 3;
+        data.hud.maxPinnedTasks = 5;
         save();
     }
 
-    public static int getMaxPins() {
-        return MAX_PINS;
+    public int getMaxSubtasksShown() {
+        return data.hud.maxSubtasksShown;
+    }
+
+    public void setMaxSubtasksShown(int value) {
+        data.hud.maxSubtasksShown = Math.max(1, Math.min(10, value));
+        save();
+    }
+
+    public int getMaxPinnedTasks() {
+        return data.hud.maxPinnedTasks;
+    }
+
+    public void setMaxPinnedTasks(int value) {
+        data.hud.maxPinnedTasks = Math.max(1, Math.min(10, value));
+        save();
     }
 
     private static File configFile() {
