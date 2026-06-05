@@ -1,9 +1,13 @@
 package com.eldrinn.foreman.proxy;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import net.minecraftforge.common.MinecraftForge;
 
 import com.eldrinn.foreman.command.ForemanCommand;
 import com.eldrinn.foreman.event.PlayerLoginHandler;
+import com.eldrinn.foreman.event.PlayerLogoutHandler;
 import com.eldrinn.foreman.event.TeamMergeListener;
 import com.eldrinn.foreman.network.ForemanNetwork;
 
@@ -14,6 +18,9 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 public class CommonProxy {
 
+    /** In-memory cooldown map for remind actions. Key: "taskId:targetPlayerId". Resets on server restart. */
+    public static final Map<String, Long> remindCooldowns = new LinkedHashMap<>();
+
     public void preInit(FMLPreInitializationEvent event) {
         ForemanNetwork.init();
     }
@@ -23,6 +30,9 @@ public class CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(new PlayerLoginHandler());
+        FMLCommonHandler.instance()
+            .bus()
+            .register(new PlayerLogoutHandler());
         MinecraftForge.EVENT_BUS.register(new TeamMergeListener());
     }
 

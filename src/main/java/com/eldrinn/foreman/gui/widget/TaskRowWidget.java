@@ -23,6 +23,7 @@ import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.eldrinn.foreman.cache.ForemanClientCache;
+import com.eldrinn.foreman.data.AssignedPlayer;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.gui.ForemanGui;
 import com.eldrinn.foreman.gui.ForemanGuiData;
@@ -111,7 +112,7 @@ public class TaskRowWidget extends Flow {
 
         // assignee heads + names
         int shown = 0;
-        for (UUID uuid : task.assignees) {
+        for (AssignedPlayer ap : task.assignees) {
             if (shown >= 2) {
                 String more = String.format(
                     net.minecraft.util.StatCollector.translateToLocal("foreman.gui.row.more"),
@@ -122,7 +123,7 @@ public class TaskRowWidget extends Flow {
                 row.child(moreLabel);
                 break;
             }
-            String name = resolveName(uuid);
+            String name = resolveName(ap.playerId());
             if (name != null) {
                 row.child(
                     new PlayerHeadWidget(name).size(HEAD_SIZE, HEAD_SIZE)
@@ -144,12 +145,12 @@ public class TaskRowWidget extends Flow {
         if (task.assignees.isEmpty()) return 0;
         int w = 0;
         int shown = 0;
-        for (UUID uuid : task.assignees) {
+        for (AssignedPlayer ap : task.assignees) {
             if (shown >= 2) {
                 w += 30;
                 break;
             }
-            String name = resolveName(uuid);
+            String name = resolveName(ap.playerId());
             if (name != null) {
                 w += HEAD_GAP + HEAD_SIZE + nameTextWidth(name);
             }

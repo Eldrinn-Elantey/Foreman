@@ -21,9 +21,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 
+import com.eldrinn.foreman.data.AssignedPlayer;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskStatus;
 import com.eldrinn.foreman.network.ForemanNetwork;
+import com.eldrinn.foreman.network.OpenGuiPacket;
 import com.eldrinn.foreman.network.SyncAllTasksPacket;
 import com.eldrinn.foreman.storage.ForemanWorldData;
 import com.google.gson.Gson;
@@ -43,7 +45,7 @@ public class ForemanCommand extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/foreman <list|reload|gui|create <title>|assign <id> <player>|unassign <id> <player>|done <id>|export [name]|import <name>>";
+        return "/foreman <list|reload|gui|create <title>|assign <id> <player>|unassign <id> <player>|done <id>|export [name]|import <name>|open <taskId>>";
     }
 
     @Override
@@ -64,7 +66,8 @@ public class ForemanCommand extends CommandBase {
                 "unassign",
                 "done",
                 "export",
-                "import");
+                "import",
+                "open");
         }
         return java.util.Collections.emptyList();
     }
@@ -163,8 +166,12 @@ public class ForemanCommand extends CommandBase {
                 Team senderTeam = TeamManager.getTeamByPlayer(((EntityPlayerMP) sender).getUniqueID());
                 if (senderTeam == null) return;
                 EntityPlayerMP target = CommandBase.getPlayer(sender, args[2]);
-                if (!task.assignees.contains(target.getUniqueID())) {
-                    task.assignees.add(target.getUniqueID());
+                boolean alreadyAssigned = task.assignees.stream()
+                    .anyMatch(
+                        ap -> ap.playerId()
+                            .equals(target.getUniqueID()));
+                if (!alreadyAssigned) {
+                    task.assignees.add(new AssignedPlayer(target.getUniqueID(), System.currentTimeMillis()));
                     data.updateTask(senderTeam.getTeamId(), task);
                     ForemanNetwork.sendToTeamMembers(
                         senderTeam.getMembers(),
@@ -188,7 +195,9 @@ public class ForemanCommand extends CommandBase {
                 Team senderTeam = TeamManager.getTeamByPlayer(((EntityPlayerMP) sender).getUniqueID());
                 if (senderTeam == null) return;
                 EntityPlayerMP target = CommandBase.getPlayer(sender, args[2]);
-                task.assignees.remove(target.getUniqueID());
+                task.assignees.removeIf(
+                    ap -> ap.playerId()
+                        .equals(target.getUniqueID()));
                 data.updateTask(senderTeam.getTeamId(), task);
                 ForemanNetwork.sendToTeamMembers(
                     senderTeam.getMembers(),
@@ -374,6 +383,34 @@ public class ForemanCommand extends CommandBase {
                 } catch (Exception e) {
                     sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.import_failed", e.getMessage()));
                 }
+                break;
+            }
+            case "open": {
+                if (args.length < 2) {
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.usage.open"));
+                    return;
+                }
+                if (!(sender instanceof EntityPlayerMP player)) {
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.must_be_player"));
+                    return;
+                }
+                UUID taskId;
+                try {
+                    taskId = UUID.fromString(args[1]);
+                } catch (IllegalArgumentException e) {
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.task_not_found", args[1]));
+                    return;
+                }
+                Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
+                if (team == null) {
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.not_in_team"));
+                    return;
+                }
+                if (data.getTask(team.getTeamId(), taskId) == null) {
+                    sender.addChatMessage(new ChatComponentTranslation("foreman.cmd.task_not_found", args[1]));
+                    return;
+                }
+                ForemanNetwork.CHANNEL.sendTo(new OpenGuiPacket(taskId), player);
                 break;
             }
             default:

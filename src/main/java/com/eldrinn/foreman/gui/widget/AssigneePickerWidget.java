@@ -1,19 +1,17 @@
 package com.eldrinn.foreman.gui.widget;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiPlayerInfo;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayer;
 
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.eldrinn.foreman.cache.ForemanClientCache;
 import com.eldrinn.foreman.cache.PlayerEntry;
+import com.eldrinn.foreman.data.AssignedPlayer;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.gui.ForemanGui;
 import com.eldrinn.foreman.gui.ForemanGuiData;
@@ -36,7 +34,10 @@ public class AssigneePickerWidget extends Flow {
         final int NAME_W = width - GAP - CHECK_W - GAP - HEAD_SIZE - GAP;
 
         for (PlayerEntry player : resolveAvailablePlayers()) {
-            boolean assigned = task.assignees.contains(player.id());
+            boolean assigned = task.assignees.stream()
+                .anyMatch(
+                    ap -> ap.playerId()
+                        .equals(player.id()));
 
             var checkMark = new TextWidget<>(assigned ? "[x]" : "[ ]");
             checkMark.size(CHECK_W, 20);
@@ -64,10 +65,15 @@ public class AssigneePickerWidget extends Flow {
                     .child(row)
                     .onMousePressed(btn -> {
                         if (btn != 0) return false;
-                        if (task.assignees.contains(player.id())) {
-                            task.assignees.remove(player.id());
+                        if (task.assignees.stream()
+                            .anyMatch(
+                                ap -> ap.playerId()
+                                    .equals(player.id()))) {
+                            task.assignees.removeIf(
+                                ap -> ap.playerId()
+                                    .equals(player.id()));
                         } else {
-                            task.assignees.add(player.id());
+                            task.assignees.add(new AssignedPlayer(player.id(), System.currentTimeMillis()));
                         }
                         ForemanNetwork.CHANNEL.sendToServer(new UpdateTaskPacket(task));
                         ForemanGui.open(data);
@@ -77,28 +83,14 @@ public class AssigneePickerWidget extends Flow {
     }
 
     private static List<PlayerEntry> resolveAvailablePlayers() {
-        List<PlayerEntry> result = new ArrayList<>();
-
-        // Always include local player first
+        List<PlayerEntry> members = ForemanClientCache.getTeamMembers();
+        if (!members.isEmpty()) return members;
+        // Fallback before first sync: show only local player
         EntityPlayer local = Minecraft.getMinecraft().thePlayer;
-        UUID localId = local.getGameProfile()
-            .getId();
-        result.add(new PlayerEntry(localId, local.getCommandSenderName()));
-
-        // Add other online players visible in the tab list
-        NetHandlerPlayClient netHandler = Minecraft.getMinecraft().thePlayer.sendQueue;
-        for (GuiPlayerInfo info : netHandler.playerInfoList) {
-            EntityPlayer p = Minecraft.getMinecraft().theWorld.getPlayerEntityByName(info.name);
-            if (p != null && !p.getGameProfile()
-                .getId()
-                .equals(localId)) {
-                result.add(
-                    new PlayerEntry(
-                        p.getGameProfile()
-                            .getId(),
-                        info.name));
-            }
-        }
-        return result;
+        return java.util.Collections.singletonList(
+            new PlayerEntry(
+                local.getGameProfile()
+                    .getId(),
+                local.getCommandSenderName()));
     }
 }

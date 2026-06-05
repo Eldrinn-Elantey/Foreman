@@ -27,6 +27,8 @@ public class ForemanWorldData extends WorldSavedData {
     // Outer key = teamId, inner key = taskId
     private final Map<UUID, LinkedHashMap<UUID, Task>> teamTasks = new LinkedHashMap<>();
 
+    private final Map<UUID, Long> playerLastSeen = new LinkedHashMap<>();
+
     public ForemanWorldData() {
         super(DATA_NAME);
     }
@@ -92,6 +94,15 @@ public class ForemanWorldData extends WorldSavedData {
         markDirty();
     }
 
+    public long getPlayerLastSeen(UUID playerId) {
+        return playerLastSeen.getOrDefault(playerId, 0L);
+    }
+
+    public void setPlayerLastSeen(UUID playerId, long timestamp) {
+        playerLastSeen.put(playerId, timestamp);
+        markDirty();
+    }
+
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         teamTasks.clear();
@@ -132,6 +143,15 @@ public class ForemanWorldData extends WorldSavedData {
                 LOG.info("Migrated {} legacy tasks to sentinel team {}", map.size(), legacyTeam);
             }
         }
+
+        playerLastSeen.clear();
+        if (compound.hasKey("playerLastSeen")) {
+            NBTTagList seenList = compound.getTagList("playerLastSeen", Constants.NBT.TAG_COMPOUND);
+            for (int i = 0; i < seenList.tagCount(); i++) {
+                NBTTagCompound e = seenList.getCompoundTagAt(i);
+                playerLastSeen.put(new UUID(e.getLong("most"), e.getLong("least")), e.getLong("ts"));
+            }
+        }
     }
 
     @Override
@@ -154,5 +174,21 @@ public class ForemanWorldData extends WorldSavedData {
             teamList.appendTag(entry);
         }
         compound.setTag("perTeamTasks", teamList);
+
+        NBTTagList seenList = new NBTTagList();
+        for (Map.Entry<UUID, Long> entry : playerLastSeen.entrySet()) {
+            NBTTagCompound e = new NBTTagCompound();
+            e.setLong(
+                "most",
+                entry.getKey()
+                    .getMostSignificantBits());
+            e.setLong(
+                "least",
+                entry.getKey()
+                    .getLeastSignificantBits());
+            e.setLong("ts", entry.getValue());
+            seenList.appendTag(e);
+        }
+        compound.setTag("playerLastSeen", seenList);
     }
 }
