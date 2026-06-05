@@ -17,6 +17,7 @@ import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.eldrinn.foreman.cache.ForemanClientCache;
+import com.eldrinn.foreman.cache.PlayerEntry;
 import com.eldrinn.foreman.data.Subtask;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.data.TaskLocation;
@@ -26,6 +27,7 @@ import com.eldrinn.foreman.gui.ForemanGuiData;
 import com.eldrinn.foreman.network.CreateTaskPacket;
 import com.eldrinn.foreman.network.DeleteTaskPacket;
 import com.eldrinn.foreman.network.ForemanNetwork;
+import com.eldrinn.foreman.network.RemindTaskPacket;
 import com.eldrinn.foreman.network.UpdateTaskPacket;
 
 import cpw.mods.fml.relauncher.Side;
@@ -225,6 +227,52 @@ public class TaskDetailWidget extends Flow {
         assigneesLabel.size(W, 14);
         formList.child(assigneesLabel);
         formList.child(new AssigneePickerWidget(task, data, W));
+
+        // Remind buttons for each assigned player
+        if (!task.assignees.isEmpty()) {
+            final int HEAD_SIZE = 8;
+            final int GAP = 4;
+            int remindW = Minecraft.getMinecraft().fontRenderer.getStringWidth("Remind") + 12;
+            int nameW = W - GAP - HEAD_SIZE - GAP - remindW - GAP;
+
+            for (com.eldrinn.foreman.data.AssignedPlayer ap : task.assignees) {
+                String apName = ForemanClientCache.getTeamMembers()
+                    .stream()
+                    .filter(
+                        e -> e.id()
+                            .equals(ap.playerId()))
+                    .map(PlayerEntry::name)
+                    .findFirst()
+                    .orElseGet(
+                        () -> ap.playerId()
+                            .toString()
+                            .substring(0, 8));
+
+                Flow assigneeRow = Flow.row()
+                    .size(W, ROW_H);
+                assigneeRow.child(
+                    new PlayerHeadWidget(apName).size(HEAD_SIZE, HEAD_SIZE)
+                        .marginTop(6)
+                        .marginLeft(GAP));
+                assigneeRow.child(
+                    new TextWidget<>(apName).size(nameW, ROW_H)
+                        .textAlign(Alignment.CenterLeft)
+                        .marginLeft(GAP));
+                assigneeRow.child(
+                    new ButtonWidget<>().size(remindW, EL_H)
+                        .marginTop(2)
+                        .marginLeft(GAP)
+                        .child(
+                            new TextWidget<>("Remind").size(remindW, EL_H)
+                                .textAlign(Alignment.Center))
+                        .onMousePressed(btn -> {
+                            if (btn != 0) return false;
+                            ForemanNetwork.CHANNEL.sendToServer(new RemindTaskPacket(task.id, ap.playerId()));
+                            return true;
+                        }));
+                formList.child(assigneeRow);
+            }
+        }
 
         // Location header: [label fills rest] [show-on-map label 72] [4px gap] [toggle EL_H]
         final int MAP_LABEL_W = 72;

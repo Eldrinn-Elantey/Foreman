@@ -25,6 +25,7 @@ public class ForemanClientCache {
 
     private static final Map<UUID, Task> tasks = new LinkedHashMap<>();
     private static final PinnedTasksConfig pinConfig = new PinnedTasksConfig();
+    private static final List<PlayerEntry> teamMembers = new ArrayList<>();
 
     public static void loadConfig() {
         pinConfig.load();
@@ -81,5 +82,14 @@ public class ForemanClientCache {
 
     public static PinnedTasksConfig getPinConfig() {
         return pinConfig;
+    }
+
+    public static void updateTeamMembers(List<PlayerEntry> incoming) {
+        teamMembers.clear();
+        teamMembers.addAll(incoming);
+    }
+
+    public static List<PlayerEntry> getTeamMembers() {
+        return Collections.unmodifiableList(teamMembers);
     }
 }

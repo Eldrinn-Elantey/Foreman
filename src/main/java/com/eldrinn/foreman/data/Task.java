@@ -18,7 +18,7 @@ public class Task {
     public String title;
     public String description;
     public TaskStatus status;
-    public final List<UUID> assignees; // UUIDs, display names resolved on client
+    public final List<AssignedPlayer> assignees;
     @Nullable
     public TaskLocation location;
     @Nullable
@@ -47,12 +47,7 @@ public class Task {
         tag.setString("status", status.name());
 
         NBTTagList assigneeList = new NBTTagList();
-        for (UUID uuid : assignees) {
-            NBTTagCompound entry = new NBTTagCompound();
-            entry.setLong("most", uuid.getMostSignificantBits());
-            entry.setLong("least", uuid.getLeastSignificantBits());
-            assigneeList.appendTag(entry);
-        }
+        for (AssignedPlayer ap : assignees) assigneeList.appendTag(ap.toNBT());
         tag.setTag("assignees", assigneeList);
 
         tag.setBoolean("hasLocation", location != null);
@@ -81,8 +76,7 @@ public class Task {
 
         NBTTagList assigneeList = tag.getTagList("assignees", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < assigneeList.tagCount(); i++) {
-            NBTTagCompound entry = assigneeList.getCompoundTagAt(i);
-            task.assignees.add(new UUID(entry.getLong("most"), entry.getLong("least")));
+            task.assignees.add(AssignedPlayer.fromNBT(assigneeList.getCompoundTagAt(i)));
         }
 
         if (tag.getBoolean("hasLocation")) {
@@ -113,10 +107,7 @@ public class Task {
         buf.writeInt(status.ordinal());
 
         buf.writeInt(assignees.size());
-        for (UUID uuid : assignees) {
-            buf.writeLong(uuid.getMostSignificantBits());
-            buf.writeLong(uuid.getLeastSignificantBits());
-        }
+        for (AssignedPlayer ap : assignees) ap.writeToBuf(buf);
 
         buf.writeBoolean(location != null);
         if (location != null) location.writeToBuf(buf);
@@ -145,7 +136,7 @@ public class Task {
         int assigneeCount = buf.readInt();
         if (assigneeCount < 0 || assigneeCount > 100) throw new IOException("Invalid assignee count: " + assigneeCount);
         for (int i = 0; i < assigneeCount; i++) {
-            task.assignees.add(new UUID(buf.readLong(), buf.readLong()));
+            task.assignees.add(AssignedPlayer.readFromBuf(buf));
         }
 
         if (buf.readBoolean()) {

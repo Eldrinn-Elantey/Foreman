@@ -2,7 +2,6 @@ package com.eldrinn.foreman.network;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -10,6 +9,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 
+import com.eldrinn.foreman.data.AssignedPlayer;
 import com.eldrinn.foreman.data.Task;
 import com.eldrinn.foreman.storage.ForemanWorldData;
 import com.gtnewhorizon.gtnhlib.network.base.IPacket;
@@ -50,10 +50,15 @@ public class UpdateTaskPacket implements IPacket {
         // Notify players who are newly assigned to this task
         List<EntityPlayerMP> online = MinecraftServer.getServer()
             .getConfigurationManager().playerEntityList;
-        for (UUID assigneeId : task.assignees) {
-            if (!oldTask.assignees.contains(assigneeId)) {
+        for (AssignedPlayer ap : task.assignees) {
+            boolean wasAssigned = oldTask.assignees.stream()
+                .anyMatch(
+                    old -> old.playerId()
+                        .equals(ap.playerId()));
+            if (!wasAssigned) {
                 for (EntityPlayerMP p : online) {
-                    if (assigneeId.equals(p.getUniqueID())) {
+                    if (ap.playerId()
+                        .equals(p.getUniqueID())) {
                         p.addChatMessage(new ChatComponentTranslation("foreman.chat.assigned", task.title));
                         break;
                     }
